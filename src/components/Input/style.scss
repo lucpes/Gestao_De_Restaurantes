@@ -1,0 +1,22 @@
+@import "../../GlobalStyle.scss";
+
+.input-container {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 240px;
+    display: flex;
+    border-radius: 6px;
+    border: 1px solid $gray-color;
+    padding: 10px 8px 10px 10px;
+    text-align: left;
+
+    .input {
+        background-color: transparent;
+        outline: none;
+        border: none;
+        color: #373737be;
+        font-size: 14px;
+    }
+}
