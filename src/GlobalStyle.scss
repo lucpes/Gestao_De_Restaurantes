@@ -1,7 +1,7 @@
 $bg-primary: #dde5f4;
 $bg-secondary: #e6e9f9;
 $primary-color: #3e4684;
-$secondary-color: #6e58c0;
+$secondary-color: #4934a3;
 $gray-color: #373737;
 
 body {
@@ -28,4 +28,9 @@ a {
     &:hover {
         color: #373737be;
     }
+}
+
+main {
+    display: flex;
+    max-height: 100vh;
 }
