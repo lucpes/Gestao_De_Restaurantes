@@ -10,16 +10,12 @@
     height: 100vh;
     padding: 12px;
 
-    .logo-image {
-        height: 240px;
-        scale: 0.8;
-    }
-
     .nav-items {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 12px;
+        flex: 1;
     }
 
     &.open {

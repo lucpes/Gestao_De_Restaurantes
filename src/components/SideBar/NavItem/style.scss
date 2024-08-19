@@ -10,7 +10,8 @@
     width: 80%;
     transition: 0.4s ease-in-out;
 
-    &:hover {
+    &:hover,
+    &.current-navitem {
         cursor: pointer;
         background-color: $bg-primary;
 

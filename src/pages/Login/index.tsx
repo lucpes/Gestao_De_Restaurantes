@@ -4,6 +4,7 @@ import Input from "../../components/Input";
 import "./style.scss";
 import { CiUser, CiLock, CiLogin } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import Logo from "../../components/Logo";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -11,16 +12,15 @@ function Login() {
     const navigate = useNavigate();
 
     function handleSubmit() {
-        navigate("/home");
+        navigate("/home/stock");
     }
 
     return (
         <div className="login-container">
             <div className="login-box">
-                <img
-                    className="logo-image"
-                    src="assets/svg/logo.svg"
-                    alt="logo"
+                <Logo
+                    style={{ scale: "0.9", height: "240px" }}
+                    color="#3e4684"
                 />
                 <div className="input-button-content">
                     <Input
