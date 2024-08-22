@@ -19,4 +19,8 @@
         color: #373737be;
         font-size: 14px;
     }
+
+    &.input-error {
+        border: 1px red solid;
+    }
 }

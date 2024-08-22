@@ -6,6 +6,7 @@ interface InputProps {
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder: string;
     icon?: ReactNode;
+    error?: string;
 }
 
 export default function Input({
@@ -13,16 +14,17 @@ export default function Input({
     icon,
     value,
     onChange,
+    error = "",
 }: InputProps) {
     return (
-        <label className="input-container">
+        <label className={`input-container ${error && "input-error"}`}>
             {icon ? icon : ""}
             <input
                 value={value}
                 onChange={onChange}
                 type="text"
                 className="input"
-                placeholder={placeholder}
+                placeholder={error ? error : placeholder}
                 autoComplete="off"
             />
         </label>

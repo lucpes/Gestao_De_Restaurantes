@@ -1,0 +1,41 @@
+@import "../../../GlobalStyle.scss";
+
+.carditem-container {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    background-color: $bg-secondary;
+    border-radius: 8px;
+    padding: 12px;
+
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    .carditem-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 0;
+        padding: 6px 12px;
+        height: 50%;
+        border-radius: 8px;
+        border: 1px solid $primary-color;
+    }
+
+    .title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50%;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid $primary-color;
+        flex: 1;
+        max-width: 500px;
+
+        h3 {
+            text-align: center;
+            font-weight: 600;
+        }
+    }
+}

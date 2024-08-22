@@ -9,6 +9,8 @@
     transform: translateX(-300px);
     height: 100vh;
     padding: 12px;
+    position: fixed;
+    z-index: 99;
 
     .nav-items {
         display: flex;

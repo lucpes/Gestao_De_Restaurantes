@@ -12,6 +12,8 @@ function Login() {
     const navigate = useNavigate();
 
     function handleSubmit() {
+        // adicionar lógica de login
+
         navigate("/home/stock");
     }
 
@@ -29,7 +31,6 @@ function Login() {
                         placeholder="Email"
                         icon={<CiUser className="icon" />}
                     />
-                    {email}
                     <Input
                         value={password}
                         onChange={(e) => setPasssword(e.target.value)}
@@ -40,7 +41,7 @@ function Login() {
                 </div>
                 <div className="links-login">
                     <CiLogin />
-                    <a href="">Registrar</a>
+                    <a href="/signup">Registrar</a>
                 </div>
             </div>
         </div>

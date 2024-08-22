@@ -1,12 +1,12 @@
 @import "../../GlobalStyle.scss";
 
-.login-container {
+.signup-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 
-    .login-box {
+    .signup-box {
         box-sizing: border-box;
         display: flex;
         flex-direction: column;

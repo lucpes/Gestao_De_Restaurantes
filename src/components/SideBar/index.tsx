@@ -4,9 +4,8 @@ import { VscSettingsGear } from "react-icons/vsc";
 import { FiUsers } from "react-icons/fi";
 import { PiPackageDuotone } from "react-icons/pi";
 import { CiLogout } from "react-icons/ci";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../Logo";
-import { useEffect, useState } from "react";
 
 export default function SideBar() {
     const navigate = useNavigate();
