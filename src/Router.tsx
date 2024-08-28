@@ -5,6 +5,7 @@ import Stock from "./pages/Stock";
 import Employer from "./pages/Employer";
 import Config from "./pages/Config";
 import SignUp from "./pages/SignUp";
+import Output from "./pages/Output";
 
 export default function Router() {
     return (
@@ -14,6 +15,7 @@ export default function Router() {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/home/" element={<Layout />}>
                     <Route path="stock" element={<Stock />} />
+                    <Route path="output" element={<Output />} />
                     <Route path="employer" element={<Employer />} />
                     <Route path="config" element={<Config />} />
                 </Route>

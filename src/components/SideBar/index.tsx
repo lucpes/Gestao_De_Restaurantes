@@ -5,6 +5,7 @@ import { FiUsers } from "react-icons/fi";
 import { PiPackageDuotone } from "react-icons/pi";
 import { CiLogout } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { SlNotebook } from "react-icons/sl";
 import Logo from "../Logo";
 
 export default function SideBar() {
@@ -18,7 +19,13 @@ export default function SideBar() {
                     path="/home/stock"
                     onClick={() => navigate("stock")}
                     icon={<PiPackageDuotone />}
-                    label="Gestão de Estoque"
+                    label="Gestão de estoque"
+                />
+                <NavItem
+                    path="/home/output"
+                    onClick={() => navigate("output")}
+                    icon={<SlNotebook />}
+                    label="Saída de pratos"
                 />
                 <NavItem
                     path="/home/employer"
