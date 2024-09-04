@@ -1,19 +1,21 @@
-import { CiUser, CiLock, CiLogin } from "react-icons/ci";
+import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import "./style.scss";
-import { useState } from "react";
+import { CiUser, CiLock, CiLogin } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../Firebase/firebaseConfig";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const EMAIL_ERROR_MESSAGE = "Email está incorreto!";
 const PASSWORD_ERROR_MESSAGE = "A senha está incorreta!";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
-    const [password, setPasssword] = useState("");
+    const [password, setPassword] = useState("");
 
     const [emailError, setEmailError] = useState("");
-    const [passwordError, setPassswordError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const navigate = useNavigate();
 
     function checkFields() {
@@ -26,23 +28,26 @@ export default function SignUp() {
         }
 
         if (!password) {
-            setPassswordError(PASSWORD_ERROR_MESSAGE);
+            setPasswordError(PASSWORD_ERROR_MESSAGE);
             isCorrect = false;
         } else {
-            setPassswordError("");
+            setPasswordError("");
         }
 
         return isCorrect;
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         if (!checkFields()) {
             return;
         }
 
-        // adicionar lógica de signUp
-
-        navigate("/");
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            navigate("/");
+        } catch (error) {
+            console.error("Erro ao registrar:", error);
+        }
     }
 
     return (
@@ -59,9 +64,10 @@ export default function SignUp() {
                     />
                     <Input
                         value={password}
-                        onChange={(e) => setPasssword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Senha"
                         icon={<CiLock className="icon" />}
+                        type="password"
                         error={passwordError}
                     />
                     <Button onClick={handleSubmit}>Registrar</Button>

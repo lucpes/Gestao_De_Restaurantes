@@ -5,16 +5,21 @@ import "./style.scss";
 import { CiUser, CiLock, CiLogin } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
+import { auth } from "../../Firebase/firebaseConfig";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 function Login() {
     const [email, setEmail] = useState("");
-    const [password, setPasssword] = useState("");
+    const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    function handleSubmit() {
-        // adicionar lógica de login
-
-        navigate("/home/stock");
+    const handleSubmit = async () => {
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate("/home/stock");
+        } catch (error) {
+            console.error("Erro ao fazer login:", error);
+        }
     }
 
     return (
@@ -30,12 +35,14 @@ function Login() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                         icon={<CiUser className="icon" />}
+
                     />
                     <Input
                         value={password}
-                        onChange={(e) => setPasssword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Senha"
                         icon={<CiLock className="icon" />}
+                        type="password"
                     />
                     <Button onClick={handleSubmit}>Login</Button>
                 </div>
@@ -49,3 +56,4 @@ function Login() {
 }
 
 export default Login;
+ 

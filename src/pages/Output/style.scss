@@ -38,6 +38,24 @@
         padding: 20px;
         overflow-y: scroll;
 
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+    
+        &::-webkit-scrollbar-track {
+            background: $bg-secondary;
+            border-radius: 10px;
+        }
+    
+        &::-webkit-scrollbar-thumb {
+            background: $primary-color; 
+            border-radius: 10px;
+        }
+    
+        &::-webkit-scrollbar-thumb:hover {
+            background: $secondary-color;
+        }
+
         .modal-item {
             display: flex;
             flex-direction: column;
