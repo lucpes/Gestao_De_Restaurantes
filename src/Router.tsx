@@ -6,6 +6,7 @@ import Employer from "./pages/Employer";
 import Config from "./pages/Config";
 import SignUp from "./pages/SignUp";
 import Output from "./pages/Output";
+import AddRestaurant from "./pages/AddRestaurant"; // Importando o componente AddRestaurant
 
 export default function Router() {
     return (
@@ -18,6 +19,7 @@ export default function Router() {
                     <Route path="output" element={<Output />} />
                     <Route path="employer" element={<Employer />} />
                     <Route path="config" element={<Config />} />
+                    <Route path="add-restaurant" element={<AddRestaurant />} /> {/* Nova rota */}
                 </Route>
             </Routes>
         </BrowserRouter>

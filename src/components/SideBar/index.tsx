@@ -6,6 +6,7 @@ import { PiPackageDuotone } from "react-icons/pi";
 import { CiLogout } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { SlNotebook } from "react-icons/sl";
+import { MdRestaurant } from "react-icons/md"; // Importando o ícone de restaurante
 import Logo from "../Logo";
 
 export default function SideBar() {
@@ -38,6 +39,12 @@ export default function SideBar() {
                     onClick={() => navigate("config")}
                     icon={<VscSettingsGear />}
                     label="Configurações"
+                />
+                <NavItem
+                    path="/home/add-restaurant"
+                    onClick={() => navigate("add-restaurant")}
+                    icon={<MdRestaurant />} // Ícone de restaurante
+                    label="Adicionar Restaurante"
                 />
             </div>
             <NavItem
