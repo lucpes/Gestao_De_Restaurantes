@@ -6,7 +6,7 @@ import Employer from "./pages/Employer";
 import Config from "./pages/Config";
 import SignUp from "./pages/SignUp";
 import Output from "./pages/Output";
-import AddRestaurant from "./pages/AddRestaurant"; // Importando o componente AddRestaurant
+import AddRestaurant from "./pages/AddRestaurant";
 
 export default function Router() {
     return (
