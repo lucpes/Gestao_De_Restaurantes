@@ -1,57 +1,45 @@
-@import "../../GlobalStyle.scss";
-
-.add-product-page {
+.add-product-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    padding: 32px;
-
-    h1 {
-        color: $primary-color;
-    }
-
-    .category-selector {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        max-width: 600px;
-
-        select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-    }
-
-    .product-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        width: 100%;
-        max-width: 600px;
-
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            &:hover {
-                background-color: #0056b3;
-            }
-        }
-    }
-}
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .form-group label {
+    margin-bottom: 10px;
+  }
+  
+  .form-group select,
+  .form-group input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 200px;
+  }
+  
+  .product-list {
+    margin-top: 20px;
+  }
+  
+  .product-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .product-list li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .product-list button {
+    margin-left: 10px;
+  }

@@ -20,11 +20,11 @@ const db = getFirestore(app);
 export { auth, firestore, db, collection, addDoc, getDocs, setDoc, doc, updateDoc, deleteDoc,arrayRemove,arrayUnion };
 
 // Adicionar funções para categorias e produtos
-export async function createCategory(data) {
-    const docRef = doc(collection(db, 'categories', data.name));
-    await setDoc(docRef, data);
+export async function createCategory(category) {
+    const docRef = await addDoc(collection(db, 'categories'), category);
     return docRef.id;
   }
+  
   export async function getCategories() {
     const querySnapshot = await getDocs(collection(db, 'categories'));
     const categories = [];
@@ -59,8 +59,8 @@ export async function createCategory(data) {
   }
   
   export async function addSubcategory(categoryId, subcategory) {
-    const docRef = doc(db, 'categories', categoryId);
-    await updateDoc(docRef, { subcategories: arrayUnion(subcategory) });
+    const docRef = await addDoc(collection(db, `categories/${categoryId}/subcategories`), subcategory);
+    return docRef.id;
   }
   
   export async function removeSubcategory(categoryId, subcategory) {
@@ -69,9 +69,9 @@ export async function createCategory(data) {
   }
   
   // Funções para produtos
-  export async function createProduct(data) {
-    const docRef = doc(collection(db, 'products'));
-    await setDoc(docRef, data);
+  export async function createProduct(product) {
+    const { categoryId, subcategoryId, ...productData } = product;
+    const docRef = await addDoc(collection(db, `categories/${categoryId}/subcategories/${subcategoryId}/products`), productData);
     return docRef.id;
   }
   
@@ -82,7 +82,7 @@ export async function createCategory(data) {
     await updateDoc(docRef, data);
   }
   
-  export async function deleteProduct(id) {
+  export async function deleteProduct(id, productId) {
     const docRef = doc(db, 'products', id);
     await deleteDoc(docRef);
   }
