@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { db, collection, addDoc, updateDoc, doc } from "../../../Firebase/firebaseConfig";
+import { db, collection, addDoc, updateDoc, doc, getDocs } from "../../../Firebase/firebaseConfig";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
 import categories from "../../../services/categoryData";
@@ -15,8 +15,30 @@ export default function AddItemForm() {
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        // Lógica para adicionar o item ao estoque
-        alert(`Item adicionado: ${selectedItem}, Quantidade: ${quantity}`);
+        if (!selectedCategory || !selectedSubcategory || !selectedItem || !quantity) {
+            alert("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        try {
+            const itemDoc = await addDoc(collection(db, "stockItems"), {
+                category: selectedCategory,
+                subcategory: selectedSubcategory,
+                item: selectedItem,
+                quantity: quantity
+            });
+            alert(`Item adicionado: ${selectedItem}, Quantidade: ${quantity}`);
+            setSelectedCategory("");
+            setSelectedSubcategory("");
+            setSelectedItem("");
+            setQuantity("");
+        } catch (error) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred");
+            }
+        }
     };
 
     const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -44,16 +66,16 @@ export default function AddItemForm() {
         const selectedSubcategoryObj = selectedCategoryObj?.subcategories.find(sub => sub.name === selectedSubcategory);
 
         if (selectedSubcategoryObj) {
-            selectedSubcategoryObj.items.push({ name: newItemName, quantity: 0, unit: newItemUnit, items: [] });
+            selectedSubcategoryObj.items.push(newItemName);
 
             // Atualizar a subcategoria no Firestore
-            if (selectedCategoryObj) {
-                const categoryDoc = doc(db, "categories", selectedCategoryObj.id.toString());
-                await updateDoc(categoryDoc, {
+            const querySnapshot = await getDocs(collection(db, "categories"));
+            const categoryDoc = querySnapshot.docs.find(doc => doc.data().name === selectedCategory);
+            if (categoryDoc) {
+                const categoryRef = doc(db, "categories", categoryDoc.id);
+                await updateDoc(categoryRef, {
                     subcategories: selectedCategoryObj.subcategories
                 });
-            } else {
-                alert("Categoria selecionada não encontrada.");
             }
 
             alert(`Novo item adicionado: ${newItemName}`);
@@ -84,8 +106,8 @@ export default function AddItemForm() {
                 {selectedSubcategory && (
                     <select value={selectedItem} onChange={handleItemChange}>
                         <option value="">Selecione um Item</option>
-                        {selectedSubcategoryObj?.items.map((item: { name: string; quantity?: number; unit?: string; }) => (
-                            <option key={item.name} value={item.name}>{item.name}</option>
+                        {selectedSubcategoryObj?.items.map(item => (
+                            <option key={item} value={item}>{item}</option>
                         ))}
                     </select>
                 )}
@@ -111,7 +133,7 @@ export default function AddItemForm() {
                     <option value="g">g</option>
                     <option value="litros">litros</option>
                 </select>
-                <Button onClick={handleAddNewItem}>Adicionar Novo Item</Button>
+                <Button type="submit" onClick={() => {}}>Adicionar Novo Item</Button>
             </div>
         </div>
     );
