@@ -25,6 +25,8 @@ const CategoryComponent = () => {
   useEffect(() => {
     async function fetchCategories() {
       const categories = await getCategories();
+      console.log('Categorias retornadas:', categories); // Log para verificar os dados retornados
+
       const formattedCategories: Category[] = categories.map((category: any) => ({
         id: category.id,
         name: category.name,
@@ -37,6 +39,8 @@ const CategoryComponent = () => {
           })),
         })),
       }));
+
+      console.log('Categorias formatadas:', formattedCategories); // Log para verificar os dados formatados
       setCategories(formattedCategories);
     }
 
@@ -46,7 +50,37 @@ const CategoryComponent = () => {
   return (
     <div className="category-container">
       <h1>Categorias</h1>
-      {/* Render categories and subcategories */}
+      {categories.length > 0 ? (
+        categories.map(category => (
+          <div key={category.id}>
+            <h2>{category.name}</h2>
+            <ul>
+              {category.subcategories.length > 0 ? (
+                category.subcategories.map(subcategory => (
+                  <li key={subcategory.name}>
+                    <h3>{subcategory.name}</h3>
+                    <ul>
+                      {subcategory.products.length > 0 ? (
+                        subcategory.products.map(product => (
+                          <li key={product.name}>
+                            {product.name} - {product.quantity} {product.unit}
+                          </li>
+                        ))
+                      ) : (
+                        <li>Nenhum produto encontrado.</li>
+                      )}
+                    </ul>
+                  </li>
+                ))
+              ) : (
+                <li>Selecione uma Subcategoria</li>
+              )}
+            </ul>
+          </div>
+        ))
+      ) : (
+        <p>Nenhuma categoria encontrada.</p>
+      )}
     </div>
   );
 };
