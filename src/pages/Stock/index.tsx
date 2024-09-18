@@ -50,14 +50,14 @@ export default function Stock() {
                     size={"60px"}
                     onClick={() => setShowProductForm(true)}
                 />
-                {items.map(item => (
+                {items && items.map(item => (
                     <CardItem key={item.id} name={item.name} />
                 ))}
-                {categories.map(category => (
+                {categories && categories.map(category => (
                     <div key={category.id}>
                         <h2>{category.name}</h2>
                         <ul>
-                            {category.items.map((item, index) => (
+                            {category.items && category.items.map((item, index) => (
                                 <li key={index}>{typeof item === "string" ? item : item.name}</li>
                             ))}
                         </ul>
