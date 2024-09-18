@@ -25,13 +25,13 @@ interface Category {
 
 const AddProduct = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [newCategory, setNewCategory] = useState('');
-  const [newSubcategory, setNewSubcategory] = useState('');
-  const [productName, setProductName] = useState('');
-  const [productQuantity, setProductQuantity] = useState('');
-  const [productUnit, setProductUnit] = useState('g');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
+  const [newCategory, setNewCategory] = useState<string>('');
+  const [newSubcategory, setNewSubcategory] = useState<string>('');
+  const [productName, setProductName] = useState<string>('');
+  const [productQuantity, setProductQuantity] = useState<string>('');
+  const [productUnit, setProductUnit] = useState<string>('g');
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {

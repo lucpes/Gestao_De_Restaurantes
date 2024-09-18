@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema({
@@ -17,7 +16,6 @@ const categorySchema = new mongoose.Schema({
   ]
 });
 
-module.exports = mongoose.model('Category', categorySchema);
 categorySchema.statics.create = async function (data) {
   const category = new this(data);
   await category.save();

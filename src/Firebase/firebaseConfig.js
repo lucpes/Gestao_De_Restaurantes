@@ -25,44 +25,7 @@ export async function createCategory(category) {
     return docRef.id;
   }
   
-  export async function getCategories() {
-    const querySnapshot = await getDocs(collection(db, 'categories'));
-    const categories = [];
-    for (const doc of querySnapshot.docs) {
-      const data = doc.data();
-      console.log('Dados da categoria:', data); // Log para verificar os dados da categoria
-  
-      const subcategoriesSnapshot = await getDocs(collection(doc.ref, 'subcategories'));
-      const subcategories = [];
-      for (const subDoc of subcategoriesSnapshot.docs) {
-        const subData = subDoc.data();
-        console.log('Dados da subcategoria:', subData); // Log para verificar os dados da subcategoria
-  
-        const productsSnapshot = await getDocs(collection(subDoc.ref, 'products'));
-        const products = productsSnapshot.docs.map(prodDoc => prodDoc.data());
-        console.log('Dados dos produtos:', products); // Log para verificar os dados dos produtos
-  
-        subcategories.push({ name: subData.name, products });
-      }
-      categories.push({ id: doc.id, name: data.name, subcategories });
-    }
-    return categories;
-  }
-  export async function updateCategory(id, data) {
-    const docRef = doc(db, 'categories', id);
-    await updateDoc(docRef, data);
-  }
-  
-  export async function deleteCategory(id) {
-    const docRef = doc(db, 'categories', id);
-    await deleteDoc(docRef);
-  }
-  
-  export async function addSubcategory(categoryId, subcategory) {
-    const docRef = await addDoc(collection(db, `categories/${categoryId}/subcategories`), subcategory);
-    return docRef.id;
-  }
-  
+
   export async function removeSubcategory(categoryId, subcategory) {
     const docRef = doc(db, 'categories', categoryId);
     await updateDoc(docRef, { subcategories: arrayRemove(subcategory) });
@@ -101,3 +64,45 @@ export async function createCategory(category) {
       };
     });
   }
+
+// Adicionar funções para categorias e produtos
+
+  export async function getCategories() {
+    const querySnapshot = await getDocs(collection(db, 'categories'));
+    const categories = [];
+    for (const doc of querySnapshot.docs) {
+      const data = doc.data();
+      console.log('Dados da categoria:', data); // Log para verificar os dados da categoria
+  
+      const subcategoriesSnapshot = await getDocs(collection(doc.ref, 'subcategories'));
+      const subcategories = [];
+      for (const subDoc of subcategoriesSnapshot.docs) {
+        const subData = subDoc.data();
+        console.log('Dados da subcategoria:', subData); // Log para verificar os dados da subcategoria
+  
+        const productsSnapshot = await getDocs(collection(subDoc.ref, 'products'));
+        const products = productsSnapshot.docs.map(prodDoc => ({ id: prodDoc.id, ...prodDoc.data() }));
+        console.log('Dados dos produtos:', products); // Log para verificar os dados dos produtos
+  
+        subcategories.push({ id: subDoc.id, name: subData.name, products });
+      }
+      categories.push({ id: doc.id, name: data.name, subcategories });
+    }
+    return categories;
+  }
+  
+  export async function updateCategory(id, data) {
+    const docRef = doc(db, 'categories', id);
+    await updateDoc(docRef, data);
+  }
+  
+  export async function deleteCategory(id) {
+    const docRef = doc(db, 'categories', id);
+    await deleteDoc(docRef);
+  }
+  
+  export async function addSubcategory(categoryId, subcategory) {
+    const docRef = await addDoc(collection(db, `categories/${categoryId}/subcategories`), subcategory);
+    return docRef.id;
+  }
+  

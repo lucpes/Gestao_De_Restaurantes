@@ -3,12 +3,14 @@ import { getCategories } from '../../Firebase/firebaseConfig';
 import './style.scss';
 
 interface Product {
+  id: string;
   name: string;
   quantity: number;
   unit: string;
 }
 
 interface Subcategory {
+  id: string;
   name: string;
   products: Product[];
 }
@@ -32,8 +34,10 @@ const Stock = () => {
         id: category.id,
         name: category.name,
         subcategories: category.subcategories.map((subcategory: any) => ({
+          id: subcategory.id,
           name: subcategory.name,
           products: subcategory.products.map((product: any) => ({
+            id: product.id,
             name: product.name,
             quantity: product.quantity,
             unit: product.unit,
@@ -42,7 +46,6 @@ const Stock = () => {
       }));
       setCategories(formattedCategories);
     }
-
     fetchCategories();
   }, []);
 
@@ -54,10 +57,10 @@ const Stock = () => {
   };
 
   const handleSubcategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const subcategoryName = event.target.value;
-    setSelectedSubcategory(subcategoryName);
+    const subcategoryId = event.target.value;
+    setSelectedSubcategory(subcategoryId);
     const category = categories.find(cat => cat.id === selectedCategory);
-    const subcategory = category?.subcategories.find(sub => sub.name === subcategoryName);
+    const subcategory = category?.subcategories.find(sub => sub.id === subcategoryId);
     setProducts(subcategory ? subcategory.products : []);
   };
 
@@ -80,7 +83,7 @@ const Stock = () => {
         <select id="subcategory" value={selectedSubcategory} onChange={handleSubcategoryChange}>
           <option value="">Selecione uma subcategoria</option>
           {categories.find(cat => cat.id === selectedCategory)?.subcategories.map((subcategory) => (
-            <option key={subcategory.name} value={subcategory.name}>
+            <option key={subcategory.id} value={subcategory.id}>
               {subcategory.name}
             </option>
           ))}
@@ -91,7 +94,7 @@ const Stock = () => {
         {products.length > 0 ? (
           <ul>
             {products.map((product) => (
-              <li key={product.name}>
+              <li key={product.id}>
                 {product.name} - {product.quantity} {product.unit}
               </li>
             ))}
