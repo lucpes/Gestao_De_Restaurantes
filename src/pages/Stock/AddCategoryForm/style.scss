@@ -1,0 +1,41 @@
+@import "../../../GlobalStyle.scss";
+
+.add-category-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.add-category-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    background-color: $bg-secondary;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+select, input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: $primary-color;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: darken($primary-color, 10%);
+}

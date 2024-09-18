@@ -1,5 +1,15 @@
-import "./style.scss";
+import { useEffect } from "react";
+import { addCategoriesToFirestore } from "../../services/categoryService";
 
 export default function Config() {
-    return <div>Employer</div>;
+    useEffect(() => {
+        addCategoriesToFirestore();
+    }, []);
+
+    return (
+        <div>
+            <h1>Configurações</h1>
+            <p>Categorias foram adicionadas ao Firestore.</p>
+        </div>
+    );
 }

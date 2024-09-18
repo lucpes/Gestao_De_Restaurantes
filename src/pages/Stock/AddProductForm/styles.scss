@@ -1,0 +1,20 @@
+.add-product-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.add-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+
+select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
