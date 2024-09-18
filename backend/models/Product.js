@@ -1,24 +1,31 @@
-const { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc } = require('firebase/firestore');
-const db = getFirestore();
+const mongoose = require('mongoose');
 
-const Product = {
-  async create(data) {
-    const docRef = doc(collection(db, 'products'));
-    await setDoc(docRef, data);
-    return docRef.id;
-  },
-  async readAll() {
-    const querySnapshot = await getDocs(collection(db, 'products'));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  },
-  async update(id, data) {
-    const docRef = doc(db, 'products', id);
-    await updateDoc(docRef, data);
-  },
-  async delete(id) {
-    const docRef = doc(db, 'products', id);
-    await deleteDoc(docRef);
-  }
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  unit: { type: String, required: true },
+  category: { type: String, required: true },
+  subcategory: { type: String, required: true },
+});
+
+productSchema.statics.create = async function (data) {
+  const product = new this(data);
+  await product.save();
+  return product._id;
 };
+
+productSchema.statics.readAll = async function () {
+  return this.find({});
+};
+
+productSchema.statics.update = async function (id, data) {
+  await this.findByIdAndUpdate(id, data);
+};
+
+productSchema.statics.delete = async function (id) {
+  await this.findByIdAndDelete(id);
+};
+
+const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
