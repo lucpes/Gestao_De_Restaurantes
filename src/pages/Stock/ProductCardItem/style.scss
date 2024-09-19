@@ -2,33 +2,33 @@
 
 .carditem-output-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 32px;
+    gap: 16px;
     background-color: $bg-secondary;
     border-radius: 8px;
-    padding: 16px;
+    padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    height: fit-content;
-    width: 400px;
-
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
     .carditem-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: $primary-color;
         &:hover {
             cursor: pointer;
             color: $gray-color;
         }
-
-        p {
-            font-weight: 500;
-        }
     }
-
     .carditem-output-controller {
         display: flex;
         align-items: center;
         gap: 8px;
         user-select: none;
-
         svg:hover {
             cursor: pointer;
         }

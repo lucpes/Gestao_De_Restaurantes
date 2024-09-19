@@ -1,16 +1,25 @@
 import "./style.scss";
+import { ComponentProps, useState } from "react";
+import { FaPlus, FaMinus } from "react-icons/fa6";
 
-export default function CardItem({ name = "Arroz" }: { name?: string }) {
-    return (
-        <div className="carditem-container">
-            <div className="title">
-                <h3>{name}</h3>
-            </div>
-            <div className="carditem-info">
-                {/* <p>Quantidade:</p> */}
-                <p>10 kg</p>
-            </div>
-            <div></div>
+interface CardItemProps extends ComponentProps<"div"> {
+  handleModalOpen: VoidFunction;
+}
+
+export default function CardItem({ handleModalOpen, ...props }: CardItemProps) {
+  const [count, setCount] = useState(0);
+  return (
+    <div {...props} className="carditem-output-container">
+      <div className="carditem-title" onClick={handleModalOpen}>
+        <p>Camarão Internacional</p>
+      </div>
+      <div className="carditem-output-controller">
+        <FaMinus onClick={() => setCount((count) => count - 1)} />
+        <div className="counter">
+          <p>{count}</p>
         </div>
-    );
+        <FaPlus onClick={() => setCount((count) => count + 1)} />
+      </div>
+    </div>
+  );
 }

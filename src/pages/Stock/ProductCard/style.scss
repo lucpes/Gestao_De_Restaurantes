@@ -1,3 +1,40 @@
+@import "../../../GlobalStyle.scss";
+
+.carditem-output-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background-color: $bg-secondary;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .carditem-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: $primary-color;
+        &:hover {
+            cursor: pointer;
+            color: $gray-color;
+        }
+    }
+    .carditem-output-controller {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        user-select: none;
+        svg:hover {
+            cursor: pointer;
+        }
+    }
+}
+
 .product-carditem-container {
     background-color: #fff;
     border-radius: 8px;
@@ -6,14 +43,21 @@
     width: 200px;
     text-align: center;
     cursor: pointer;
-  }
-  
-  .product-carditem-title {
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.product-carditem-title {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
-  }
-  
-  .product-carditem-details {
+    color: $primary-color;
+}
+
+.product-carditem-details {
     font-size: 16px;
-  }
+    color: $secondary-color;
+}

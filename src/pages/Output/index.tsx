@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CardItem from "./CardItem";
+import CardItem from "../Stock/CardItem";
 import "./style.scss";
 import { CiSquarePlus } from "react-icons/ci";
 import Modal from "../../components/Modal";
