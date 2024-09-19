@@ -1,16 +1,74 @@
 .stock-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr;
+    gap: 20px;
     padding: 20px;
   }
   
-  .form-group {
-    margin-bottom: 20px;
+  .title-line {
+    grid-column: span 3;
   }
   
-  .product-list {
+  .filters {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .menu {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .menu h2 {
+    margin-bottom: 10px;
+  }
+  
+  .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .menu li {
+    margin-bottom: 10px;
+  }
+  
+  .menu li span {
+    cursor: pointer;
+  }
+  
+  .cards-content {
+    grid-column: span 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .carditem-output-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+  }
+  
+  .carditem-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .carditem-output-controller {
+    font-size: 16px;
+  }
+  
+  .modal-item {
+    padding: 20px;
+  }
+  
+  .modal-button {
     margin-top: 20px;
+    text-align: center;
   }

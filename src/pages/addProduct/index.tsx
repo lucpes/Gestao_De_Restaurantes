@@ -1,64 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories, createCategory, updateCategory, deleteCategory, addSubcategory, removeSubcategory, createProduct, updateProduct, deleteProduct } from '../../Firebase/firebaseConfig';
-import Button from "../../components/Button";
-import Input from "../../components/Input";
+import { getCategories, createCategory, addSubcategory, createProduct, deleteProduct, deleteCategory, removeSubcategory } from '../../Firebase/firebaseConfig';
+import Input from '../../components/Input';
+import Button from '../../components/Button';
 import './style.scss';
 
-interface Product {
-  id: string;
-  name: string;
-  quantity: number;
-  unit: string;
-}
-
-interface Subcategory {
-  id: string;
-  name: string;
-  products: Product[];
-}
-
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Subcategory[];
-}
-
 const AddProduct = () => {
+  interface Product {
+    id: string;
+    name: string;
+    quantity: number;
+    unit: string;
+  }
+  
+  interface Subcategory {
+    id: string;
+    name: string;
+    products: Product[];
+  }
+  
+  interface Category {
+    id: string;
+    name: string;
+    subcategories: Subcategory[];
+  }
+  
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
-  const [newCategory, setNewCategory] = useState<string>('');
-  const [newSubcategory, setNewSubcategory] = useState<string>('');
-  const [productName, setProductName] = useState<string>('');
-  const [productQuantity, setProductQuantity] = useState<string>('');
-  const [productUnit, setProductUnit] = useState<string>('g');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [newCategory, setNewCategory] = useState('');
+  const [newSubcategory, setNewSubcategory] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productQuantity, setProductQuantity] = useState('');
+  const [productUnit, setProductUnit] = useState('g');
 
   useEffect(() => {
     async function fetchCategories() {
       const categories = await getCategories();
-      const formattedCategories = categories.map((category: any) => ({
+      setCategories(categories.map(category => ({
         ...category,
-        subcategories: category.subcategories.map((subcategory: any) => ({
+        subcategories: category.subcategories.map(subcategory => ({
           ...subcategory,
-          id: subcategory.id || '', // Ensure id is present
-        })),
-      }));
-      setCategories(formattedCategories);
+          products: subcategory.products.map(product => ({
+            ...product,
+            id: product.id || '',
+            name: (product as Product).name || '',
+            quantity: (product as Product).quantity || 0,
+            unit: (product as Product).unit || 'g'
+          }))
+        }))
+      })));
     }
     fetchCategories();
   }, []);
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const categoryId = event.target.value;
+  const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setSelectedSubcategory('');
-    const category = categories.find(cat => cat.id === categoryId);
-    setProducts(category ? category.subcategories.flatMap(sub => sub.products) : []);
+    setProducts([]);
   };
 
-  const handleSubcategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const subcategoryId = event.target.value;
+  const handleSubcategoryChange = (subcategoryId: React.SetStateAction<string>) => {
     setSelectedSubcategory(subcategoryId);
     const category = categories.find(cat => cat.id === selectedCategory);
     const subcategory = category?.subcategories.find(sub => sub.id === subcategoryId);
@@ -172,17 +174,16 @@ const AddProduct = () => {
 
   return (
     <div className="add-product-container">
-      <h1>Adicionar Produto</h1>
-      <div className="form-group">
-        <label htmlFor="category">Categoria</label>
-        <select id="category" value={selectedCategory} onChange={handleCategoryChange}>
-          <option value="">Selecione uma categoria</option>
+      <div className="menu">
+        <h2>Categorias</h2>
+        <ul>
           {categories.map(category => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
+            <li key={category.id}>
+              <span onClick={() => handleCategoryChange(category.id)}>{category.name}</span>
+              <button onClick={() => handleDeleteCategory(category.id)}>Excluir</button>
+            </li>
           ))}
-        </select>
+        </ul>
         <Input
           type="text"
           value={newCategory}
@@ -192,16 +193,16 @@ const AddProduct = () => {
         <Button onClick={handleAddCategory}>Adicionar Categoria</Button>
       </div>
       {selectedCategory && (
-        <div className="form-group">
-          <label htmlFor="subcategory">Subcategoria</label>
-          <select id="subcategory" value={selectedSubcategory} onChange={handleSubcategoryChange}>
-            <option value="">Selecione uma subcategoria</option>
+        <div className="menu">
+          <h2>Subcategorias</h2>
+          <ul>
             {categories.find(cat => cat.id === selectedCategory)?.subcategories.map(subcategory => (
-              <option key={subcategory.id} value={subcategory.id}>
-                {subcategory.name}
-              </option>
+              <li key={subcategory.id}>
+                <span onClick={() => handleSubcategoryChange(subcategory.id)}>{subcategory.name}</span>
+                <button onClick={() => handleDeleteSubcategory(subcategory.id)}>Excluir</button>
+              </li>
             ))}
-          </select>
+          </ul>
           <Input
             type="text"
             value={newSubcategory}
@@ -212,7 +213,8 @@ const AddProduct = () => {
         </div>
       )}
       {selectedSubcategory && (
-        <>
+        <div className="product-list">
+          <h2>Produtos</h2>
           <div className="form-group">
             <label htmlFor="productName">Nome do Produto</label>
             <input
@@ -240,22 +242,19 @@ const AddProduct = () => {
             </select>
           </div>
           <Button onClick={handleAddProduct}>Adicionar Produto</Button>
-          <div className="product-list">
-            <h2>Produtos</h2>
-            {products.length > 0 ? (
-              <ul>
-                {products.map((product) => (
-                  <li key={product.id}>
-                    {product.name} - {product.quantity} {product.unit}
-                    <button onClick={() => handleDeleteProduct(product.id)}>Excluir</button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Nenhum produto encontrado.</p>
-            )}
-          </div>
-        </>
+          {products.length > 0 ? (
+            <ul>
+              {products.map((product) => (
+                <li key={product.id}>
+                  {product.name} - {product.quantity} {product.unit}
+                  <button onClick={() => handleDeleteProduct(product.id)}>Excluir</button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhum produto encontrado.</p>
+          )}
+        </div>
       )}
     </div>
   );
