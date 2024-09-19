@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories } from '../../Firebase/firebaseConfig';
-import ProductCardItem from './ProductCardItem'; // Certifique-se de que o caminho está correto
+import { getCategories,deleteProduct } from '../../Firebase/firebaseConfig';
+import ProductCardItem from './ProductCardItem';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
 import './style.scss';
@@ -24,7 +24,7 @@ interface Category {
   subcategories: Subcategory[];
 }
 
-export default function Stock() {
+function Stock() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
@@ -71,60 +71,78 @@ export default function Stock() {
     setIsOpen(true);
   };
 
-  return (
+  const handleDelete = async () => {
+    if (currentProduct) {
+        console.log(`Tentando deletar produto: ${currentProduct.id}`);
+        try {
+            await deleteProduct(selectedCategory, selectedSubcategory, currentProduct.id);
+            alert('Produto excluído com sucesso!');
+            setIsOpen(false);
+            setProducts(products.filter(product => product.id !== currentProduct.id));
+        } catch (error) {
+            console.error('Erro ao excluir produto:', error);
+            alert('Erro ao excluir produto.');
+        }
+    }
+};
+
+
+return (
     <section className="stock-container">
-      <div className="title-line">
-        <h1>Estoque de Produtos</h1>
-      </div>
-      <div className="filters">
-        <div className="menu">
-          <h2>Categorias</h2>
-          <ul>
-            {categories.map(category => (
-              <li key={category.id}>
-                <span onClick={() => handleCategoryChange(category.id)}>{category.name}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="title-line">
+            <h1>Estoque de Produtos</h1>
         </div>
-        {selectedCategory && (
-          <div className="menu">
-            <h2>Subcategorias</h2>
-            <ul>
-              {categories.find(cat => cat.id === selectedCategory)?.subcategories.map(subcategory => (
-                <li key={subcategory.id}>
-                  <span onClick={() => handleSubcategoryChange(subcategory.id)}>{subcategory.name}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-      <div className="cards-content">
-        {products.map((product) => (
-          <ProductCardItem
-            key={product.id}
-            handleModalOpen={() => handleCardItem(product)}
-            productName={product.name}
-            productQuantity={product.quantity}
-            productUnit={product.unit}
-          />
-        ))}
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-          {currentProduct && (
-            <div className="modal-item">
-              <h3>{currentProduct.name}</h3>
-              <ul>
-                <li>Quantidade: {currentProduct.quantity}</li>
-                <li>Unidade: {currentProduct.unit}</li>
-              </ul>
-              <div className="modal-button">
-                <Button onClick={() => ""}>Excluir</Button>
-              </div>
+        <div className="filters">
+            <div className="menu">
+                <h2>Categorias</h2>
+                <ul>
+                    {categories.map(category => (
+                        <li key={category.id}>
+                            <span onClick={() => handleCategoryChange(category.id)}>{category.name}</span>
+                        </li>
+                    ))}
+                </ul>
             </div>
-          )}
-        </Modal>
-      </div>
+            {selectedCategory && (
+                <div className="menu">
+                    <h2>Subcategorias</h2>
+                    <ul>
+                        {categories.find(cat => cat.id === selectedCategory)?.subcategories.map(subcategory => (
+                            <li key={subcategory.id}>
+                                <span onClick={() => handleSubcategoryChange(subcategory.id)}>{subcategory.name}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+        <div className="product-list">
+            {products.map(product => (
+                <ProductCardItem
+                    key={product.id}
+                    handleModalOpen={() => handleCardItem(product)}
+                    productName={product.name}
+                    productQuantity={product.quantity}
+                    productUnit={product.unit}
+                />
+            ))}
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+                    {currentProduct && (
+                        <div className="modal-item">
+                            <h3>{currentProduct.name}</h3>
+                            <ul>
+                                <li>Quantidade: {currentProduct.quantity}</li>
+                                <li>Unidade: {currentProduct.unit}</li>
+                            </ul>
+                            <div className="modal-button">
+                                <Button onClick={handleDelete}>Excluir</Button>
+                            </div>
+                        </div>
+                    )}
+                </Modal>
+        </div>
     </section>
-  );
+);
 }
+
+export default Stock;

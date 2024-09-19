@@ -31,20 +31,20 @@ export async function createCategory(category) {
   export async function createProduct(product) {
     const { categoryId, subcategoryId, name, ...productData } = product;
     const docRef = doc(collection(db, `categories/${categoryId}/subcategories/${subcategoryId}/products`), name);
-    await setDoc(docRef, productData);
+    await setDoc(docRef, { name, ...productData });
     return docRef.id;
-  }
-
+}
   
-  export async function updateProduct(categoryId, subcategoryId, productId, data) {
+export async function deleteProduct(categoryId, subcategoryId, productId) {
+    console.log(`Tentando deletar produto: categoryId=${categoryId}, subcategoryId=${subcategoryId}, productId=${productId}`);
     const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${productId}`);
-    await updateDoc(docRef, data);
-  }
-  
-  export async function deleteProduct(subcategoryId, productId) {
-    const docRef = doc(db, `categories/${subcategoryId}/products/${productId}`);
-    await deleteDoc(docRef);
-  }
+    try {
+        await deleteDoc(docRef);
+        console.log(`Produto deletado com sucesso: ${productId}`);
+    } catch (error) {
+        console.error(`Erro ao deletar produto: ${error}`);
+    }
+}
   export async function getProducts() {
     const querySnapshot = await getDocs(collection(db, 'products'));
     return querySnapshot.docs.map(doc => {
@@ -85,6 +85,11 @@ export async function getCategories() {
       categories.push({ id: doc.id, name: data.name, subcategories });
     }
     return categories;
+  }
+  
+  export async function updateProduct(categoryId, subcategoryId, productId, data) {
+    const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${productId}`);
+    await updateDoc(docRef, data);
   }
   
   
