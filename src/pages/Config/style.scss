@@ -1,0 +1,16 @@
+.config-container {
+    padding: 20px;
+  }
+  
+  .delete-account-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .delete-account-button:hover {
+    background-color: darkred;
+  }
