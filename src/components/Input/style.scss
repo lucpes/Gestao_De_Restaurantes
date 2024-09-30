@@ -68,6 +68,7 @@
         width: 85%;
         padding-bottom: 4px;
         align-items: start;
+        overflow-x: hidden;
         
         &::-webkit-scrollbar {
             width: 8px;
@@ -91,13 +92,20 @@
             padding: 8px;
             border-radius: 6px;
             transition: 0.3s;
-            width: 90%;
+            width: 100%;
             list-style: none;
             list-style-position: inside;
+            user-select: none;
+            transform: translateX(-30px);
             &:hover {
                 cursor: pointer;
                 box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
             }
         }
     }
+}
+.input-box-open {
+    border-top-left-radius: 6px!important;
+    border-top-right-radius: 6px!important;
+    
 }

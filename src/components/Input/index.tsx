@@ -97,7 +97,11 @@ export default function Input({
     const boxCondition =
         filteredData && filteredData.length > 0 && value && isBoxOpen;
     return (
-        <label className={`input-container ${error && "input-error"}`}>
+        <label
+            className={`input-container ${
+                boxCondition ? "input-box-open" : ""
+            } ${error && "input-error"}`}
+        >
             {icon && <span className="input-icon">{icon}</span>}
             <input
                 value={value}
@@ -105,7 +109,7 @@ export default function Input({
                 type={
                     type === "password" && !showPassword ? "password" : "text"
                 }
-                className="input"
+                className={`input`}
                 placeholder={error ? error : placeholder}
                 autoComplete="off"
             />
@@ -118,7 +122,6 @@ export default function Input({
                                 onClick={() => {
                                     setValue!(name);
                                     setIsBoxOpen(false);
-                                    setIsManuallyClosed(true);
                                 }}
                                 key={index}
                             >
@@ -126,12 +129,6 @@ export default function Input({
                             </li>
                         ))}
                     </ul>
-                    <FiX
-                        size={18}
-                        onClick={() => {
-                            setIsBoxOpen(false);
-                        }}
-                    />
                 </div>
             )}
 
