@@ -73,6 +73,21 @@
             }
         }
 
+        .modal-add-plate {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+            flex: 1;
+            gap: 16px;
+            
+            .modal-add-title {
+                color: $gray-color;
+                margin: 0;
+            }
+        }
+
         .icon {
             position: fixed;
             right: 40px;
