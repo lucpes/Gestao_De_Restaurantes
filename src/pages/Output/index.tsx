@@ -135,11 +135,16 @@ export default function Output() {
                         <Input
                             value={ingredient.name}
                             data={ingredientsList}
+                            setValue={(name) =>
+                                setIngredient({
+                                    ...ingredient,
+                                    name: name,
+                                })
+                            }
                             onChange={(e) =>
                                 setIngredient({
                                     ...ingredient,
-                                    name: e.target
-                                        .value! as React.ChangeEvent<HTMLInputElement>,
+                                    name: e.target.value,
                                 })
                             }
                             placeholder="Nome do Igrediente"

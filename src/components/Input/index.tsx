@@ -6,8 +6,8 @@ import { FiX } from "react-icons/fi";
 
 interface InputProps {
     value: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement> | string) => void;
-
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    setValue?: (value: string) => void;
     placeholder: string;
     icon?: ReactNode;
     error?: string;
@@ -20,6 +20,7 @@ export default function Input({
     icon,
     value,
     onChange,
+    setValue,
     error = "",
     type = "text",
     data,
@@ -115,7 +116,9 @@ export default function Input({
                         {filteredData.map((name, index) => (
                             <li
                                 onClick={() => {
-                                    onChange(name);
+                                    setValue!(name);
+                                    setIsBoxOpen(false);
+                                    setIsManuallyClosed(true);
                                 }}
                                 key={index}
                             >
