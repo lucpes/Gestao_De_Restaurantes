@@ -6,7 +6,8 @@ import { FiX } from "react-icons/fi";
 
 interface InputProps {
     value: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (event: React.ChangeEvent<HTMLInputElement> | string) => void;
+
     placeholder: string;
     icon?: ReactNode;
     error?: string;
@@ -112,7 +113,14 @@ export default function Input({
                 <div className="input-box-container">
                     <ul className="input-box-content">
                         {filteredData.map((name, index) => (
-                            <li key={index}>{highlightText(name, value)}</li>
+                            <li
+                                onClick={() => {
+                                    onChange(name);
+                                }}
+                                key={index}
+                            >
+                                {highlightText(name, value)}
+                            </li>
                         ))}
                     </ul>
                     <FiX
