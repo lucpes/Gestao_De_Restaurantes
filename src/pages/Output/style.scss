@@ -19,10 +19,10 @@
         align-items: center;
 
         h1 {
-            line-height: 0;
             font-weight: 600;
             color: $primary-color;
             font-size: 40px;
+            text-align: center;
         }
     }
 
@@ -43,7 +43,7 @@
         }
     
         &::-webkit-scrollbar-track {
-            background: $bg-secondary;
+            background: transparent;
             border-radius: 10px;
         }
     

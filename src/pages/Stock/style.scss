@@ -1,44 +1,116 @@
-
+@import "../../GlobalStyle.scss";
 
 .stock-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     gap: 20px;
     padding: 20px;
-    margin-left: 90vh;
-}
+    width: 100%;
 
-.title-line {
-    grid-column: span 3;
-}
+    .title-line {
+        box-sizing: border-box;
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
 
-.filters {
-    display: flex;
-    gap: 20px;
+        h1 {
+            font-weight: 600;
+            color: $primary-color;
+            font-size: 40px;
+            text-align: center;
+        }
+    }
+
+    .stock-content {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+
+        .title-line {
+            box-sizing: border-box;
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+
+            h1 {
+                line-height: 0;
+                font-weight: 600;
+                color: $primary-color;
+                font-size: 40px;
+            }
+        }
+    }
 }
 
 .menu {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     background-color: #f9f9f9;
-    padding: 20px;
+    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+    width: 250px;
+    height: 500px;
+    overflow-y: scroll;
 
-.menu h2 {
-    margin-bottom: 10px;
-}
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
 
-.menu ul {
-    list-style: none;
-    padding: 0;
-}
+    &::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+    }
 
-.menu li {
-    margin-bottom: 10px;
-}
+    &::-webkit-scrollbar-thumb {
+        background: $primary-color; 
+        border-radius: 10px;
+    }
 
-.menu li span {
-    cursor: pointer;
+    &::-webkit-scrollbar-thumb:hover {
+        background: $secondary-color;
+    }
+
+    h2 {
+        margin-bottom: 10px;
+        color: $primary-color;
+    }
+
+    ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        li {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            border: 2px solid $primary-color;
+            width: 100%;
+            max-width: 180px;
+            border-radius: 6px;
+            padding: 6px 12px;
+            user-select: none;
+            &:hover {
+                border: 2px solid $secondary-color;
+                cursor: pointer;
+                span {
+                    font-weight: 500;
+                }
+            }
+
+            span {
+                color: $gray-color;
+                text-align: center;
+            }
+        }
+    }
 }
 
 .cards-content {
