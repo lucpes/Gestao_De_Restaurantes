@@ -24,6 +24,7 @@ const AddProduct = () => {
     subcategories: Subcategory[];
   }
   
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');

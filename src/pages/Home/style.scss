@@ -1,0 +1,42 @@
+// Remover margens e preenchimentos do body e garantir 100% de altura
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  .outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; // Garante centralização vertical
+    width: 100vw;  // Garante centralização horizontal
+  }
+  
+  .inner-container {
+    text-align: center; // Centraliza o conteúdo do botão
+  }
+  
+  .big-red-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 40px 80px; // Tamanho grande do botão
+    font-size: 32px; // Texto grande
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%; // Forma arredondada
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); // Sombra para destaque
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      background-color: darkred;
+      transform: scale(1.05); // Efeito de crescimento ao passar o mouse
+    }
+  
+    &:active {
+      background-color: crimson;
+      transform: scale(0.95); // Efeito de "pressionado" quando clicado
+    }
+  }
+  

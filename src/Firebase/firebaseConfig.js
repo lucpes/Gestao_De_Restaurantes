@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, setDoc, doc, updateDoc, deleteDoc,arrayRemove,arrayUnion} from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, setDoc, doc, updateDoc, deleteDoc,arrayRemove,arrayUnion, query, where} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC9QnCA3D_lo2ZXmTsSL78ybwO3KBULgj4",
@@ -17,7 +17,7 @@ const auth = getAuth(app);
 const firestore = getFirestore(app);
 const db = getFirestore(app);
 
-export { auth, firestore, db, collection, addDoc, getDocs, setDoc, doc, updateDoc, deleteDoc,arrayRemove,arrayUnion };
+export { auth, firestore, db, collection, addDoc, getDocs, setDoc, doc, updateDoc, deleteDoc,arrayRemove,arrayUnion, query, where };
 
 // Adicionar funções para categorias e produtos
 export async function createCategory(category) {

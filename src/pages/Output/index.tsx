@@ -1,14 +1,24 @@
-import { useState } from "react";
-import CardItem from "../Stock/CardItem";
+import { useState, useEffect } from "react";
+import CardItem from "../Stock/CardItem"; // Certifique-se de que o caminho esteja correto
 import "./style.scss";
-import { CiLock, CiSquarePlus, CiUser } from "react-icons/ci";
 import { IoRestaurantOutline } from "react-icons/io5";
+import { CiSquarePlus } from "react-icons/ci";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { type } from "os";
+import {
+    auth,
+    db,
+    addDoc,
+    collection,
+    getDocs,
+    query,
+    where,
+} from "../../Firebase/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 
 interface Item {
+    id?: string;
     name: string;
     ingredients: {
         name: string;
@@ -30,71 +40,95 @@ export default function Output() {
         quantity: "",
         type: "",
     });
-    const ingredientsList = [
-        "chuchu",
-        "banana",
-        "arroz",
-        "feijão",
-        "peixe",
-        "ovo",
-        "castanha",
-        "batata",
-        "batata doce",
-    ];
+    const [userID, setUserID] = useState<string | null>(null);
+    const [userDishes, setUserDishes] = useState<Item[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserID(user.uid);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (userID) {
+            fetchUserDishes(userID);
+        }
+    }, [userID]);
+
+    async function fetchUserDishes(userId: string) {
+        try {
+            const q = query(
+                collection(db, "dishes"),
+                where("userID", "==", userId)
+            );
+            const querySnapshot = await getDocs(q);
+            const dishes = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Item[];
+            setUserDishes(dishes);
+        } catch (error) {
+            console.error("Erro ao buscar pratos: ", error);
+        }
+    }
 
     function handleCardItem(item: Item) {
         setCurrentItem(item);
         setIsOpenPlate(true);
     }
 
-    function handleSubmit() {}
+    async function handleSubmit() {
+        if (!plate.name || plate.ingredients.length === 0 || !userID) {
+            alert("Por favor, preencha todas as informações!");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "dishes"), {
+                name: plate.name,
+                userID: userID,
+                ingredients: plate.ingredients,
+            });
+
+            alert("Prato adicionado com sucesso!");
+            setIsOpenAdd(false);
+            setPlate({ name: "", ingredients: [] });
+            fetchUserDishes(userID);
+        } catch (error) {
+            console.error("Erro ao adicionar prato: ", error);
+        }
+    }
+
+    function handleAddIngredient() {
+        if (!ingredient.name || !ingredient.quantity || !ingredient.type) {
+            alert("Por favor, preencha todas as informações do ingrediente!");
+            return;
+        }
+        setPlate({
+            ...plate,
+            ingredients: [...plate.ingredients, ingredient],
+        });
+        setIngredient({ name: "", quantity: "", type: "" });
+    }
 
     return (
         <section className="output-container">
             <div className="title-line">
-                <h1>Saída de pratos</h1>
+                <h1>Seus pratos</h1>
             </div>
             <div className="cards-content">
-                <CardItem
-                    handleModalOpen={() =>
-                        handleCardItem({
-                            name: "Camarão Internacional",
-                            ingredients: [],
-                        })
-                    }
-                />
-                <CardItem
-                    handleModalOpen={() =>
-                        handleCardItem({
-                            name: "Camarão Internacional",
-                            ingredients: [],
-                        })
-                    }
-                />
-                <CardItem
-                    handleModalOpen={() =>
-                        handleCardItem({
-                            name: "Camarão Internacional",
-                            ingredients: [],
-                        })
-                    }
-                />
-                <CardItem
-                    handleModalOpen={() =>
-                        handleCardItem({
-                            name: "Camarão Internacional",
-                            ingredients: [],
-                        })
-                    }
-                />
-                <CardItem
-                    handleModalOpen={() =>
-                        handleCardItem({
-                            name: "Camarão Internacional",
-                            ingredients: [],
-                        })
-                    }
-                />
+                {userDishes.map((dish) => (
+                    <CardItem
+                        key={dish.id}
+                        handleModalOpen={() => handleCardItem(dish)}
+                        productName={dish.name} // Nome do prato
+                        productQuantity={dish.ingredients.length} // Quantidade de ingredientes
+                        productUnit="ingredientes" // Unidade padrão
+                    />
+                ))}
                 <CiSquarePlus
                     onClick={() => setIsOpenAdd(true)}
                     className="icon"
@@ -106,10 +140,13 @@ export default function Output() {
                 >
                     {currentItem && (
                         <div className="modal-item">
-                            <h3>{currentItem.name}</h3>
+                            <h3>{currentItem.name}</h3> {/* Nome do prato */}
                             <ul>
                                 {currentItem.ingredients.map((item, index) => (
-                                    <li key={index}>{item.name}</li>
+                                    <li key={index}>
+                                        {item.name} - {item.quantity}{" "}
+                                        {item.type}
+                                    </li>
                                 ))}
                             </ul>
                             <div className="modal-button">
@@ -134,12 +171,9 @@ export default function Output() {
                         />
                         <Input
                             value={ingredient.name}
-                            data={ingredientsList}
+                            data={["chuchu", "banana", "arroz", "feijão"]} // Exemplo de lista
                             setValue={(name) =>
-                                setIngredient({
-                                    ...ingredient,
-                                    name: name,
-                                })
+                                setIngredient({ ...ingredient, name: name })
                             }
                             onChange={(e) =>
                                 setIngredient({
@@ -147,7 +181,7 @@ export default function Output() {
                                     name: e.target.value,
                                 })
                             }
-                            placeholder="Nome do Igrediente"
+                            placeholder="Nome do Ingrediente"
                         />
                         <Input
                             value={ingredient.quantity}
@@ -169,7 +203,10 @@ export default function Output() {
                             }
                             placeholder="Tipo"
                         />
-                        <Button onClick={handleSubmit}>Login</Button>
+                        <Button onClick={handleAddIngredient}>
+                            Adicionar Ingrediente
+                        </Button>
+                        <Button onClick={handleSubmit}>Salvar Prato</Button>
                     </div>
                 </Modal>
             </div>
