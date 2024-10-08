@@ -16,6 +16,7 @@ import {
     where,
 } from "../../Firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
+import { FaX } from "react-icons/fa6";
 
 interface Item {
     id?: string;
@@ -80,8 +81,15 @@ export default function Output() {
         setIsOpenPlate(true);
     }
 
+    function handleDeleteIngredient(name: string) {
+        const newIngredients = plate.ingredients.filter(
+            (ingredient) => ingredient.name !== name
+        );
+        setPlate({ ...plate, ingredients: newIngredients });
+    }
+
     async function handleSubmit() {
-        if (!plate.name || plate.ingredients.length === 0 || !userID) {
+        if (plate.ingredients.length === 0 || !userID) {
             alert("Por favor, preencha todas as informações!");
             return;
         }
@@ -169,56 +177,96 @@ export default function Output() {
                             placeholder="Nome do Prato"
                             icon={<IoRestaurantOutline size={20} />}
                         />
-                        <hr />
-                        <Input
-                            value={ingredient.name}
-                            data={["chuchu", "banana", "arroz", "feijão"]} // Exemplo de lista
-                            setValue={(name) =>
-                                setIngredient({ ...ingredient, name: name })
-                            }
-                            onChange={(e) =>
-                                setIngredient({
-                                    ...ingredient,
-                                    name: e.target.value,
-                                })
-                            }
-                            placeholder="Nome do Ingrediente"
-                        />
-                        <Input
-                            value={ingredient.quantity}
-                            onChange={(e) =>
-                                setIngredient({
-                                    ...ingredient,
-                                    quantity: e.target.value,
-                                })
-                            }
-                            placeholder="Quantidade"
-                        />
-                        <Input
-                            value={ingredient.type}
-                            onChange={(e) =>
-                                setIngredient({
-                                    ...ingredient,
-                                    type: e.target.value,
-                                })
-                            }
-                            placeholder="Tipo"
-                        />
-                        <Button width="100%" onClick={handleAddIngredient}>
-                            Adicionar Ingrediente
-                        </Button>
-                        <hr />
-                        <ul className="ingredients-content">
-                            {plate.ingredients.map((ingredient, index) => (
-                                <li key={index}>
-                                    {ingredient.name} | {ingredient.quantity}{" "}
-                                    {ingredient.type}
-                                </li>
-                            ))}
-                        </ul>
-                        <Button width="100%" onClick={handleSubmit}>
-                            Salvar Prato
-                        </Button>
+                        <div className="add-ingredient-input-content">
+                            <div>
+                                <Input
+                                    width="150px"
+                                    value={ingredient.name}
+                                    data={[
+                                        "chuchu",
+                                        "banana",
+                                        "arroz",
+                                        "feijão",
+                                    ]} // Exemplo de lista
+                                    setValue={(name) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            name: name,
+                                        })
+                                    }
+                                    onChange={(e) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            name: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Nome do Ingrediente"
+                                />
+                                <Input
+                                    width="100px"
+                                    value={ingredient.quantity}
+                                    onChange={(e) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            quantity: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Quantidade"
+                                />
+                                <Input
+                                    data={["gramas", "gramões", "litros", "ml"]}
+                                    width="100px"
+                                    value={ingredient.type}
+                                    setValue={(name) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            type: name,
+                                        })
+                                    }
+                                    onChange={(e) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            type: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Tipo"
+                                />
+                            </div>
+                            <Button width="100%" onClick={handleAddIngredient}>
+                                Adicionar Ingrediente
+                            </Button>
+                        </div>
+                        {plate.ingredients.length > 0 && (
+                            <>
+                                <div className="ingredients-container">
+                                    <h3 style={{ margin: 0 }}>
+                                        Ingredientes salvos
+                                    </h3>
+                                    <div className="ingredients-content">
+                                        {plate.ingredients.map(
+                                            (ingredient, index) => (
+                                                <p
+                                                    key={index}
+                                                    onClick={() =>
+                                                        handleDeleteIngredient(
+                                                            ingredient.name
+                                                        )
+                                                    }
+                                                >
+                                                    {ingredient.name} |{" "}
+                                                    {ingredient.quantity}{" "}
+                                                    {ingredient.type}
+                                                    <FaX size={14} />
+                                                </p>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                                <Button width="100%" onClick={handleSubmit}>
+                                    Salvar Prato
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </Modal>
             </div>

@@ -13,6 +13,7 @@ interface InputProps {
     error?: string;
     type?: string;
     data?: string[];
+    width?: string;
 }
 
 export default function Input({
@@ -24,6 +25,7 @@ export default function Input({
     error = "",
     type = "text",
     data,
+    width = "240px",
 }: InputProps) {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -104,6 +106,7 @@ export default function Input({
         >
             {icon && <span className="input-icon">{icon}</span>}
             <input
+                style={{ width: width }}
                 value={value}
                 onChange={onChange}
                 type={
@@ -115,7 +118,7 @@ export default function Input({
             />
 
             {boxCondition && (
-                <div className="input-box-container">
+                <div style={{ width: width }} className="input-box-container">
                     <ul className="input-box-content">
                         {filteredData.map((name, index) => (
                             <li
