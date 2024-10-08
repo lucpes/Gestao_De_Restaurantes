@@ -103,4 +103,25 @@
             }
         }
     }
+
+    .buttons-content {
+        display: flex;
+        
+
+    }
+
+    .ingredients-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        li {
+            list-style: none;
+            padding: 6px 12px;
+            background-color: $primary-color;
+            color: white;
+            border-radius: 16px;
+        }
+
+    }
 }

@@ -169,6 +169,7 @@ export default function Output() {
                             placeholder="Nome do Prato"
                             icon={<IoRestaurantOutline size={20} />}
                         />
+                        <hr />
                         <Input
                             value={ingredient.name}
                             data={["chuchu", "banana", "arroz", "feijão"]} // Exemplo de lista
@@ -203,10 +204,21 @@ export default function Output() {
                             }
                             placeholder="Tipo"
                         />
-                        <Button onClick={handleAddIngredient}>
+                        <Button width="100%" onClick={handleAddIngredient}>
                             Adicionar Ingrediente
                         </Button>
-                        <Button onClick={handleSubmit}>Salvar Prato</Button>
+                        <hr />
+                        <ul className="ingredients-content">
+                            {plate.ingredients.map((ingredient, index) => (
+                                <li key={index}>
+                                    {ingredient.name} | {ingredient.quantity}{" "}
+                                    {ingredient.type}
+                                </li>
+                            ))}
+                        </ul>
+                        <Button width="100%" onClick={handleSubmit}>
+                            Salvar Prato
+                        </Button>
                     </div>
                 </Modal>
             </div>
