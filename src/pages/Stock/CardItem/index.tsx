@@ -30,11 +30,11 @@ export default function CardItem({
                 {/* Exibindo quantidade e unidade */}
             </div>
             <div className="carditem-output-controller">
-                <FaMinus onClick={() => setCount((count) => count - 1)} />
+                <FaMinus onClick={() => count > 0 && setCount(count - 1)} />{" "}
                 <div className="counter">
                     <p>{count}</p>
                 </div>
-                <FaPlus onClick={() => setCount((count) => count + 1)} />
+                <FaPlus onClick={() => setCount(count + 1)} />
             </div>
         </div>
     );
