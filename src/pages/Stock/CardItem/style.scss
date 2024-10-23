@@ -57,4 +57,19 @@
             }
         }
     }
+
+    .reset-button {
+        margin-left: 10px; /* Adiciona espaço entre o contador e o botão */
+        background-color: $bg-secondary; /* Altere conforme o seu tema */
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    
+        &:hover {
+            background-color: $primary-color; /* Altere conforme o seu tema */
+            color: white;
+        }
+    }
 }

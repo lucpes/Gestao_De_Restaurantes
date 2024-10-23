@@ -1,3 +1,5 @@
+/* Não está mais sendo utilizado (eu acho)*/
+
 import "./style.scss";
 import { ComponentProps } from "react";
 
@@ -29,12 +31,6 @@ export default function ProductCardItem({
                         {productQuantity} {productUnit}
                     </p>
                 </div>
-            </div>
-
-            <div className="product-carditem-details">
-                <p>
-                    {productQuantity} {productUnit}
-                </p>
             </div>
         </div>
     );

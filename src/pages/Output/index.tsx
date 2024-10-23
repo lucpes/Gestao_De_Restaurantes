@@ -142,6 +142,7 @@ export default function Output() {
                     className="icon"
                     size={"60px"}
                 />
+                <button className="button-plate">Atribuir pratos</button>
                 <Modal
                     isOpen={isOpenPlate}
                     onClose={() => setIsOpenPlate(false)}
@@ -214,7 +215,7 @@ export default function Output() {
                                     placeholder="Quantidade"
                                 />
                                 <Input
-                                    data={["gramas", "gramões", "litros", "ml"]}
+                                    data={["gramas", "kg", "litros", "ml"]}
                                     width="100px"
                                     value={ingredient.type}
                                     setValue={(name) =>

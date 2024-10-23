@@ -103,6 +103,16 @@
                 color: $secondary-color;
             }
         }
+
+        .button-plate {
+            position: fixed;
+            left: 40px;
+            bottom: 60px;
+            background-color: $bg-primary;
+            color: $primary-color;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+        }
     }
 
     .buttons-content {
