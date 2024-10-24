@@ -115,11 +115,10 @@ export async function getCategories() {
     return categories;
 }
   
-  export async function updateProduct(categoryId, subcategoryId, productId, data) {
+export async function updateProduct(categoryId, subcategoryId, productId, data) {
     const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${productId}`);
     await updateDoc(docRef, data);
-  }
-  
+}
   
   export async function updateCategory(id, data) {
     const docRef = doc(db, 'categories', id);

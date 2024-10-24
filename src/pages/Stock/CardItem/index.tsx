@@ -1,22 +1,49 @@
-import "./style.scss";
-import { ComponentProps, useState } from "react";
-import { FaPlus, FaMinus } from "react-icons/fa6";
+import React, { useState } from "react";
+import { FaMinus, FaPlus } from "react-icons/fa";
+import { updateProduct } from "../../../Firebase/firebaseConfig";
 
-interface CardItemProps extends ComponentProps<"div"> {
-    handleModalOpen: VoidFunction;
-    productName: string; // Nome do prato
-    productQuantity: number; // Quantidade de ingredientes
-    productUnit: string; // Unidade dos ingredientes
+interface Ingredient {
+    id: string;
+    name: string;
+    quantity: number;
+    categoryId: string;
+    subcategoryId: string;
 }
 
-export default function CardItem({
+interface CardItemProps {
+    handleModalOpen: () => void;
+    productName: string;
+    productQuantity: number;
+    productUnit: string;
+    ingredients: Ingredient[];
+}
+
+const CardItem: React.FC<CardItemProps> = ({
     handleModalOpen,
     productName,
     productQuantity,
     productUnit,
+    ingredients,
     ...props
-}: CardItemProps) {
+}) => {
     const [count, setCount] = useState(0);
+
+    const handleAdd = async () => {
+        console.log(`handleAdd chamado para ${productName}`);
+        setCount(count + 1);
+        console.log(`Contador atualizado: ${count + 1}`);
+        for (const ingredient of ingredients) {
+            console.log(`Processando ingrediente: ${ingredient.name}`);
+            const newQuantity = ingredient.quantity - 1; // Ajuste a lógica de subtração conforme necessário
+            console.log(`Nova quantidade de ${ingredient.name}: ${newQuantity}`);
+            try {
+                await updateProduct(ingredient.categoryId, ingredient.subcategoryId, ingredient.id, { quantity: newQuantity });
+                console.log(`Estoque atualizado de ${ingredient.name}: ${newQuantity}`);
+            } catch (error) {
+                console.error(`Erro ao atualizar o estoque do ingrediente ${ingredient.name}: ${error}`);
+            }
+        }
+    };
 
     return (
         <div {...props} className="carditem-output-container">
@@ -34,8 +61,10 @@ export default function CardItem({
                 <div className="counter">
                     <p>{count}</p>
                 </div>
-                <FaPlus onClick={() => setCount(count + 1)} />
+                <FaPlus onClick={handleAdd} />
             </div>
         </div>
     );
-}
+};
+
+export default CardItem;

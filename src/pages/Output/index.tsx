@@ -217,7 +217,7 @@ function handleAddIngredient() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
-                    />
+                        ingredients={[]}                    />
                 ))}
                 <CiSquarePlus
                     onClick={() => setIsOpenAdd(true)}
