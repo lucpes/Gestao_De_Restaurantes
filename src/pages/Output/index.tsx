@@ -126,7 +126,7 @@ export default function Output() {
                 where("userID", "==", userId)
             );
             const querySnapshot = await getDocs(q);
-            const dishes = querySnapshot.docs.map((doc) => ({
+            const dishes = querySnapshot.docs.map((doc: { id: any; data: () => any; }) => ({
                 id: doc.id,
                 ...doc.data(),
             })) as Item[];
@@ -148,48 +148,48 @@ export default function Output() {
         setPlate({ ...plate, ingredients: newIngredients });
     }
 
-    async function handleSubmit() {
-        if (plate.ingredients.length === 0 || !userID || !selectedCategory || !selectedSubcategory) {
-            alert("Por favor, preencha todas as informações!");
+async function handleSubmit() {
+    if (plate.ingredients.length === 0 || !userID || !selectedCategory || !selectedSubcategory) {
+        alert("Por favor, preencha todas as informações!");
+        return;
+    }
+
+    try {
+        console.time("handleSubmit"); // Início da medição de tempo
+
+        // Buscar todos os ingredientes de todas as categorias e subcategorias
+        const allIngredients = await fetchAllIngredients();
+
+        // Verificar se os ingredientes do prato estão cadastrados
+        const missingIngredients = plate.ingredients.filter(ingredient => 
+            !allIngredients.some(ing => ing.name === ingredient.name)
+        );
+
+        if (missingIngredients.length > 0) {
+            alert(`Os seguintes ingredientes não estão cadastrados: ${missingIngredients.map(ing => ing.name).join(", ")}`);
+            console.timeEnd("handleSubmit"); // Fim da medição de tempo
             return;
         }
-    
-        try {
-            console.time("handleSubmit"); // Início da medição de tempo
-    
-            // Buscar todos os ingredientes de todas as categorias e subcategorias
-            const allIngredients = await fetchAllIngredients();
-    
-            // Verificar se os ingredientes do prato estão cadastrados
-            const missingIngredients = plate.ingredients.filter(ingredient => 
-                !allIngredients.some(ing => ing.name === ingredient.name)
-            );
-    
-            if (missingIngredients.length > 0) {
-                alert(`Os seguintes ingredientes não estão cadastrados: ${missingIngredients.map(ing => ing.name).join(", ")}`);
-                console.timeEnd("handleSubmit"); // Fim da medição de tempo
-                return;
-            }
-    
-            // Use o nome do prato como ID do documento
-            const dishDocRef = doc(db, "dishes", plate.name); 
-            await setDoc(dishDocRef, {
-                name: plate.name,
-                userID: userID,
-                ingredients: plate.ingredients,
-            });
-    
-            alert("Prato adicionado com sucesso!");
-            setIsOpenAdd(false);
-            setPlate({ name: "", ingredients: [] });
-            fetchUserDishes(userID);
-    
-            console.timeEnd("handleSubmit"); // Fim da medição de tempo
-        } catch (error) {
-            console.error("Erro ao adicionar prato: ", error);
-            console.timeEnd("handleSubmit"); // Fim da medição de tempo
-        }
+
+        // Use o nome do prato como ID do documento
+        const dishDocRef = doc(db, "dishes", plate.name); 
+        await setDoc(dishDocRef, {
+            name: plate.name,
+            userID: userID,
+            ingredients: plate.ingredients,
+        });
+
+        alert("Prato adicionado com sucesso!");
+        setIsOpenAdd(false);
+        setPlate({ name: "", ingredients: [] });
+        fetchUserDishes(userID);
+
+        console.timeEnd("handleSubmit"); // Fim da medição de tempo
+    } catch (error) {
+        console.error("Erro ao adicionar prato: ", error);
+        console.timeEnd("handleSubmit"); // Fim da medição de tempo
     }
+}
 
 function handleAddIngredient() {
     if (!ingredient.name || !ingredient.quantity || !ingredient.type) {
@@ -217,7 +217,7 @@ function handleAddIngredient() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
-                        ingredients={[]}                    />
+                    />
                 ))}
                 <CiSquarePlus
                     onClick={() => setIsOpenAdd(true)}
