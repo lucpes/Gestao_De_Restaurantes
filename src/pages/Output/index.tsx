@@ -9,14 +9,32 @@ import Input from "../../components/Input";
 import {
     auth,
     db,
-    addDoc,
+    doc,
+
+    setDoc,
     collection,
     getDocs,
     query,
     where,
+    getCategories,
+    fetchAllIngredients,
 } from "../../Firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { FaX } from "react-icons/fa6";
+
+interface Category {
+    id: string;
+    name: string;
+    subcategories: {
+        id: string;
+        name: string;
+        products: {
+            name: string;
+            quantity: string;
+            unit: string;
+        }[];
+    }[];
+}
 
 interface Item {
     id?: string;
@@ -43,6 +61,11 @@ export default function Output() {
     });
     const [userID, setUserID] = useState<string | null>(null);
     const [userDishes, setUserDishes] = useState<Item[]>([]);
+    const [categories, setCategories] = useState<{ id: string; [key: string]: any }[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [subcategories, setSubcategories] = useState<{ id: string; name: string }[]>([]);
+    const [selectedSubcategory, setSelectedSubcategory] = useState("");
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -58,6 +81,43 @@ export default function Output() {
             fetchUserDishes(userID);
         }
     }, [userID]);
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        if (selectedCategory) {
+            const category = categories.find(cat => cat.id === selectedCategory);
+            if (category) {
+                setSubcategories(category.subcategories || []);
+            }
+        } else {
+            setSubcategories([]);
+        }
+    }, [categories, selectedCategory]);
+
+    async function fetchCategories() {
+        const categories = await getCategories();
+        console.log('Categorias retornadas:', categories); // Log para verificar os dados retornados
+    
+        const formattedCategories: Category[] = categories.map((category: any) => ({
+            id: category.id,
+            name: category.name,
+            subcategories: category.subcategories.map((subcategory: any) => ({
+                id: subcategory.id,
+                name: subcategory.name,
+                products: subcategory.products.map((product: any) => ({
+                    name: product.name,
+                    quantity: product.quantity,
+                    unit: product.unit,
+                })),
+            })),
+        }));
+    
+        console.log('Categorias formatadas:', formattedCategories); // Log para verificar os dados formatados
+        setCategories(formattedCategories);
+    }
 
     async function fetchUserDishes(userId: string) {
         try {
@@ -89,38 +149,60 @@ export default function Output() {
     }
 
     async function handleSubmit() {
-        if (plate.ingredients.length === 0 || !userID) {
+        if (plate.ingredients.length === 0 || !userID || !selectedCategory || !selectedSubcategory) {
             alert("Por favor, preencha todas as informações!");
             return;
         }
-
+    
         try {
-            await addDoc(collection(db, "dishes"), {
+            console.time("handleSubmit"); // Início da medição de tempo
+    
+            // Buscar todos os ingredientes de todas as categorias e subcategorias
+            const allIngredients = await fetchAllIngredients();
+    
+            // Verificar se os ingredientes do prato estão cadastrados
+            const missingIngredients = plate.ingredients.filter(ingredient => 
+                !allIngredients.some(ing => ing.name === ingredient.name)
+            );
+    
+            if (missingIngredients.length > 0) {
+                alert(`Os seguintes ingredientes não estão cadastrados: ${missingIngredients.map(ing => ing.name).join(", ")}`);
+                console.timeEnd("handleSubmit"); // Fim da medição de tempo
+                return;
+            }
+    
+            // Use o nome do prato como ID do documento
+            const dishDocRef = doc(db, "dishes", plate.name); 
+            await setDoc(dishDocRef, {
                 name: plate.name,
                 userID: userID,
                 ingredients: plate.ingredients,
             });
-
+    
             alert("Prato adicionado com sucesso!");
             setIsOpenAdd(false);
             setPlate({ name: "", ingredients: [] });
             fetchUserDishes(userID);
+    
+            console.timeEnd("handleSubmit"); // Fim da medição de tempo
         } catch (error) {
             console.error("Erro ao adicionar prato: ", error);
+            console.timeEnd("handleSubmit"); // Fim da medição de tempo
         }
     }
 
-    function handleAddIngredient() {
-        if (!ingredient.name || !ingredient.quantity || !ingredient.type) {
-            alert("Por favor, preencha todas as informações do ingrediente!");
-            return;
-        }
-        setPlate({
-            ...plate,
-            ingredients: [...plate.ingredients, ingredient],
-        });
-        setIngredient({ name: "", quantity: "", type: "" });
+function handleAddIngredient() {
+    if (!ingredient.name || !ingredient.quantity || !ingredient.type) {
+        alert("Por favor, preencha todas as informações do ingrediente!");
+        return;
     }
+    setPlate({
+        ...plate,
+        ingredients: [...plate.ingredients, ingredient],
+    });
+    setIngredient({ name: "", quantity: "", type: "" });
+}
+
 
     return (
         <section className="output-container">
@@ -135,7 +217,7 @@ export default function Output() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
-                    />
+                        ingredients={[]}                    />
                 ))}
                 <CiSquarePlus
                     onClick={() => setIsOpenAdd(true)}
@@ -178,29 +260,35 @@ export default function Output() {
                             placeholder="Nome do Prato"
                             icon={<IoRestaurantOutline size={20} />}
                         />
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                        >
+                            <option value="">Selecione uma Categoria</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                            ))}
+                        </select>
+                        <select
+                            value={selectedSubcategory}
+                            onChange={(e) => setSelectedSubcategory(e.target.value)}
+                        >
+                            <option value="">Selecione uma Subcategoria</option>
+                            {subcategories.map((subcategory) => (
+                            <option key={subcategory.id} value={subcategory.id}>
+                                {subcategory.name}
+                            </option>
+                            ))}
+                        </select>
+
                         <div className="add-ingredient-input-content">
                             <div>
                                 <Input
                                     width="150px"
                                     value={ingredient.name}
-                                    data={[
-                                        "chuchu",
-                                        "banana",
-                                        "arroz",
-                                        "feijão",
-                                    ]} // Exemplo de lista
-                                    setValue={(name) =>
-                                        setIngredient({
-                                            ...ingredient,
-                                            name: name,
-                                        })
-                                    }
-                                    onChange={(e) =>
-                                        setIngredient({
-                                            ...ingredient,
-                                            name: e.target.value,
-                                        })
-                                    }
+                                    onChange={(e) => setIngredient({ ...ingredient, name: e.target.value })}
                                     placeholder="Nome do Ingrediente"
                                 />
                                 <Input

@@ -63,29 +63,57 @@ export async function deleteProduct(categoryId, subcategoryId, productId) {
 
 // Adicionar funções para categorias e produtos
 
+export async function fetchAllIngredients() {
+    console.time("fetchAllIngredients"); // Início da medição de tempo
+
+    const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+    const allIngredients = [];
+
+    for (const categoryDoc of categoriesSnapshot.docs) {
+        const subcategoriesSnapshot = await getDocs(collection(categoryDoc.ref, 'subcategories'));
+
+        for (const subcategoryDoc of subcategoriesSnapshot.docs) {
+            const productsSnapshot = await getDocs(collection(subcategoryDoc.ref, 'products'));
+
+            for (const productDoc of productsSnapshot.docs) {
+                allIngredients.push(productDoc.data());
+            }
+        }
+    }
+
+    console.timeEnd("fetchAllIngredients"); // Fim da medição de tempo
+
+    return allIngredients;
+}
+
 export async function getCategories() {
     const querySnapshot = await getDocs(collection(db, 'categories'));
     const categories = [];
     for (const doc of querySnapshot.docs) {
-      const data = doc.data();
-      console.log('Dados da categoria:', data); // Log para verificar os dados da categoria
-  
-      const subcategoriesSnapshot = await getDocs(collection(doc.ref, 'subcategories'));
-      const subcategories = [];
-      for (const subDoc of subcategoriesSnapshot.docs) {
-        const subData = subDoc.data();
-        console.log('Dados da subcategoria:', subData); // Log para verificar os dados da subcategoria
-  
-        const productsSnapshot = await getDocs(collection(subDoc.ref, 'products'));
-        const products = productsSnapshot.docs.map(prodDoc => ({ id: prodDoc.id, ...prodDoc.data() }));
-        console.log('Dados dos produtos:', products); // Log para verificar os dados dos produtos
-  
-        subcategories.push({ id: subDoc.id, name: subData.name, products });
-      }
-      categories.push({ id: doc.id, name: data.name, subcategories });
+        const data = doc.data();
+        console.log('Dados da categoria:', data); // Log para verificar os dados da categoria
+
+        const subcategoriesSnapshot = await getDocs(collection(doc.ref, 'subcategories'));
+        const subcategories = [];
+        for (const subDoc of subcategoriesSnapshot.docs) {
+            const subData = subDoc.data();
+            console.log('Dados da subcategoria:', subData); // Log para verificar os dados da subcategoria
+
+            const productsSnapshot = await getDocs(collection(subDoc.ref, 'products'));
+            const products = productsSnapshot.docs.map(prodDoc => ({ id: prodDoc.id, ...prodDoc.data() }));
+            console.log('Dados dos produtos:', products); // Log para verificar os dados dos produtos
+
+            subcategories.push({ id: subDoc.id, name: subData.name, products });
+        }
+
+        const ingredientsSnapshot = await getDocs(collection(doc.ref, 'ingredients'));
+        const ingredients = ingredientsSnapshot.docs.map(ingDoc => ({ id: ingDoc.id, ...ingDoc.data() }));
+        console.log('Dados dos ingredientes:', ingredients); // Log para verificar os dados dos ingredientes
+
+        categories.push({ id: doc.id, name: data.name, subcategories, ingredients });
     }
     return categories;
-  }
+}
   
   export async function updateProduct(categoryId, subcategoryId, productId, data) {
     const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${productId}`);
