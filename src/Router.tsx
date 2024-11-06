@@ -8,7 +8,8 @@ import SignUp from "./pages/SignUp";
 import Output from "./pages/Output";
 import Home from "./pages/Home";
 import AddRestaurant from "./pages/AddRestaurant";
-import AddProduct from "./pages/addProduct"; // Importando o componente AddProduct
+import AddProduct from "./pages/addProduct";
+import TestStock from "./pages/Stock/TestStock"; // Importando o componente TestStock
 
 export default function Router() {
     return (
@@ -22,9 +23,11 @@ export default function Router() {
                     <Route path="employer" element={<Employer />} />
                     <Route path="config" element={<Config />} />
                     <Route path="add-restaurant" element={<AddRestaurant />} />
-                    <Route path="add-product" element={<AddProduct />} />{" "}
+                    <Route path="add-product" element={<AddProduct />} />
+                    <Route path="test-stock" element={<TestStock productName="Jacare Bagual" ingredients={[
+                        { id: "molho-de-tomate", name: "Molho de Tomate", quantity: 20, categoryId: "Produtos Frescos", subcategoryId: "molhos" }
+                    ]} />} /> {/* Nova rota para TestStock */}
                     <Route path="" element={<Home />} />
-                    {/* Nova rota */}
                 </Route>
             </Routes>
         </BrowserRouter>

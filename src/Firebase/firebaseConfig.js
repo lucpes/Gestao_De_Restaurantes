@@ -114,9 +114,11 @@ export async function getCategories() {
     }
     return categories;
 }
-  
-export async function updateProduct(categoryId, subcategoryId, productId, data) {
-    const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${productId}`);
+
+
+export async function updateProduct(categoryId, subcategoryId, productName, data) {
+    const formattedProductName = productName.toLowerCase();
+    const docRef = doc(db, `categories/${categoryId}/subcategories/${subcategoryId}/products/${formattedProductName}`);
     await updateDoc(docRef, data);
 }
   
