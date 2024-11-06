@@ -14,18 +14,42 @@ import {
     getDocs,
     query,
     where,
+    getCategories,
+    updateProduct,
 } from "../../Firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { FaX } from "react-icons/fa6";
 
+interface Ingredient {
+    id?: string;
+    name: string;
+    quantity: string;
+    type: string;
+}
+
 interface Item {
     id?: string;
     name: string;
-    ingredients: {
-        name: string;
-        quantity: string;
-        type: string;
-    }[];
+    ingredients: Ingredient[];
+}
+
+interface Product {
+    id: string;
+    name: string;
+    unit: string;
+    quantity: number;
+}
+
+interface Subcategory {
+    id: string;
+    name: string;
+    products: Product[];
+}
+
+interface Category {
+    id: string;
+    name: string;
+    subcategories: Subcategory[];
 }
 
 export default function Output() {
@@ -41,8 +65,16 @@ export default function Output() {
         quantity: "",
         type: "",
     });
+    const [categories, setCategories] = useState<Category[]>([]);
     const [userID, setUserID] = useState<string | null>(null);
     const [userDishes, setUserDishes] = useState<Item[]>([]);
+    const [ingredientsList, setIngredientList] = useState<string[]>([]);
+    const [dispatchedPlates, setDispatchedPlates] = useState<
+        {
+            name: string;
+            quantity: number;
+        }[]
+    >([]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -58,6 +90,46 @@ export default function Output() {
             fetchUserDishes(userID);
         }
     }, [userID]);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const producstListFecthed: string[] = [];
+                const categories = await getCategories();
+                const formattedCategories = categories.map((category: any) => ({
+                    ...category,
+                    subcategories: category.subcategories.map(
+                        (subcategory: any) => ({
+                            ...subcategory,
+                            products: subcategory.products.map(
+                                (product: any) => ({
+                                    ...product,
+                                    name: product.name || "",
+                                    quantity: product.quantity || 0,
+                                    unit: product.unit || "",
+                                })
+                            ),
+                        })
+                    ),
+                }));
+
+                setCategories(formattedCategories);
+
+                formattedCategories.forEach((categorie: Category) =>
+                    categorie.subcategories.forEach((subcategorie) =>
+                        subcategorie.products.forEach((products) =>
+                            producstListFecthed.push(products.name)
+                        )
+                    )
+                );
+
+                setIngredientList(producstListFecthed);
+            } catch (error) {
+                console.error("erro ao carregar dados: ", error);
+            }
+        }
+        fetchCategories();
+    }, []);
 
     async function fetchUserDishes(userId: string) {
         try {
@@ -89,6 +161,7 @@ export default function Output() {
     }
 
     async function handleSubmit() {
+        console.log(plate.ingredients.length, userID);
         if (plate.ingredients.length === 0 || !userID) {
             alert("Por favor, preencha todas as informações!");
             return;
@@ -122,6 +195,62 @@ export default function Output() {
         setIngredient({ name: "", quantity: "", type: "" });
     }
 
+    async function handleDispatchPlates() {
+        const ingredientsOut: { ingredientName: string; quantity: string }[] =
+            [];
+
+        // Processa os pratos para obter os ingredientes e quantidades
+        dispatchedPlates.forEach((plate) => {
+            userDishes.forEach((dishe) => {
+                if (plate.name === dishe.name) {
+                    dishe.ingredients.forEach((ingredient) => {
+                        ingredientsOut.push({
+                            ingredientName: ingredient.name,
+                            quantity: (
+                                (ingredient.quantity as unknown as number) *
+                                plate.quantity
+                            ).toString(),
+                        });
+                    });
+                }
+            });
+        });
+
+        // Atualiza os produtos no banco de dados com a quantidade temporária inicial
+        for (const category of categories) {
+            for (const subcategory of category.subcategories) {
+                for (const product of subcategory.products) {
+                    // Armazena a quantidade inicial em uma variável temporária
+                    let updatedQuantity = product.quantity;
+
+                    for (const ingredient of ingredientsOut) {
+                        if (ingredient.ingredientName === product.name) {
+                            // Atualiza a quantidade com base na quantidade do ingrediente
+                            updatedQuantity -= Number(ingredient.quantity);
+                        }
+                    }
+
+                    // Após atualizar a quantidade, realiza a atualização no banco
+                    if (updatedQuantity !== product.quantity) {
+                        // Apenas atualiza se houver mudança
+                        await updateProduct(
+                            category.id,
+                            subcategory.id,
+                            product.id,
+                            {
+                                ...product,
+                                quantity: updatedQuantity,
+                            }
+                        );
+                    }
+                }
+            }
+        }
+
+        // Recarrega a página após todas as atualizações
+        window.location.reload();
+    }
+
     return (
         <section className="output-container">
             <div className="title-line">
@@ -135,6 +264,27 @@ export default function Output() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
+                        returnQuantity={(name, quantity) => {
+                            setDispatchedPlates((prevPlates) => {
+                                const itemExists = prevPlates.find(
+                                    (item) => item.name === name
+                                );
+
+                                if (itemExists) {
+                                    return prevPlates
+                                        .map((item) =>
+                                            item.name === name
+                                                ? { ...item, quantity }
+                                                : item
+                                        )
+                                        .filter((item) => item.quantity > 0);
+                                } else if (quantity > 0) {
+                                    return [...prevPlates, { name, quantity }];
+                                }
+
+                                return prevPlates;
+                            });
+                        }}
                     />
                 ))}
                 <CiSquarePlus
@@ -142,7 +292,9 @@ export default function Output() {
                     className="icon"
                     size={"60px"}
                 />
-                <button className="button-plate">Atribuir pratos</button>
+                <button onClick={handleDispatchPlates} className="button-plate">
+                    Atribuir pratos
+                </button>
                 <Modal
                     isOpen={isOpenPlate}
                     onClose={() => setIsOpenPlate(false)}
@@ -183,12 +335,7 @@ export default function Output() {
                                 <Input
                                     width="150px"
                                     value={ingredient.name}
-                                    data={[
-                                        "chuchu",
-                                        "banana",
-                                        "arroz",
-                                        "feijão",
-                                    ]} // Exemplo de lista
+                                    data={ingredientsList}
                                     setValue={(name) =>
                                         setIngredient({
                                             ...ingredient,

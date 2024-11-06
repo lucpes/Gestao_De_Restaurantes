@@ -6,7 +6,7 @@ import { CiUser, CiLock, CiLogin } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import { auth } from "../../Firebase/firebaseConfig";
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -20,7 +20,7 @@ function Login() {
         } catch (error) {
             console.error("Erro ao fazer login:", error);
         }
-    }
+    };
 
     return (
         <div className="login-container">
@@ -31,13 +31,14 @@ function Login() {
                 />
                 <div className="input-button-content">
                     <Input
+                        width="235px"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                         icon={<CiUser className="icon" />}
-
                     />
                     <Input
+                        width="200px"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Senha"
@@ -56,4 +57,3 @@ function Login() {
 }
 
 export default Login;
- 

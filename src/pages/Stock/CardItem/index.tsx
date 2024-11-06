@@ -1,5 +1,5 @@
 import "./style.scss";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 
 interface CardItemProps extends ComponentProps<"div"> {
@@ -7,6 +7,7 @@ interface CardItemProps extends ComponentProps<"div"> {
     productName: string; // Nome do prato
     productQuantity: number; // Quantidade de ingredientes
     productUnit: string; // Unidade dos ingredientes
+    returnQuantity?: (name: string, quantity: number) => void;
 }
 
 export default function CardItem({
@@ -14,9 +15,14 @@ export default function CardItem({
     productName,
     productQuantity,
     productUnit,
+    returnQuantity,
     ...props
 }: CardItemProps) {
     const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        returnQuantity && returnQuantity(productName, count);
+    }, [count]);
 
     return (
         <div {...props} className="carditem-output-container">
