@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { FaMinus, FaPlus } from "react-icons/fa";
 import { updateProduct } from "../../../Firebase/firebaseConfig";
+import { FaMinus, FaPlus } from "react-icons/fa";
 
 interface Ingredient {
     id: string;
@@ -27,22 +27,45 @@ const CardItem: React.FC<CardItemProps> = ({
     ...props
 }) => {
     const [count, setCount] = useState(0);
+    const [ingredientQuantities, setIngredientQuantities] = useState(
+        ingredients.map((ingredient) => ingredient.quantity)
+    );
 
     const handleAdd = async () => {
         console.log(`handleAdd chamado para ${productName}`);
-        setCount(count + 1);
-        console.log(`Contador atualizado: ${count + 1}`);
-        for (const ingredient of ingredients) {
-            console.log(`Processando ingrediente: ${ingredient.name}`);
-            const newQuantity = ingredient.quantity - 1; // Ajuste a lógica de subtração conforme necessário
-            console.log(`Nova quantidade de ${ingredient.name}: ${newQuantity}`);
-            try {
-                await updateProduct(ingredient.categoryId, ingredient.subcategoryId, ingredient.id, { quantity: newQuantity });
-                console.log(`Estoque atualizado de ${ingredient.name}: ${newQuantity}`);
-            } catch (error) {
-                console.error(`Erro ao atualizar o estoque do ingrediente ${ingredient.name}: ${error}`);
-            }
+        setCount((prevCount) => {
+            const newCount = prevCount + 1;
+            console.log(`Contador atualizado: ${newCount}`);
+            return newCount;
+        });
+
+        if (ingredients.length === 0) {
+            console.error("Nenhum ingrediente encontrado.");
+            return;
         }
+
+        const newQuantities = ingredientQuantities.map((quantity, index) => {
+            const newQuantity = quantity - 1;
+            console.log(`Nova quantidade de ${ingredients[index].name}: ${newQuantity}`);
+            if (!ingredients[index].categoryId || !ingredients[index].subcategoryId) {
+                console.error(`categoryId ou subcategoryId não definido para o ingrediente ${ingredients[index].name}`);
+                return quantity; // Retorna a quantidade original se categoryId ou subcategoryId estiver indefinido
+            }
+            updateProduct(
+                ingredients[index].categoryId,
+                ingredients[index].subcategoryId,
+                ingredients[index].name.toLowerCase(), // Use o nome do ingrediente em minúsculas
+                { quantity: newQuantity }
+            ).then(() => {
+                console.log(`Estoque atualizado de ${ingredients[index].name}: ${newQuantity}`);
+            }).catch((error: unknown) => {
+                console.error(`Erro ao atualizar o estoque do ingrediente ${ingredients[index].name}: ${error}`);
+            });
+            return newQuantity;
+        });
+
+        setIngredientQuantities(newQuantities);
+        console.log("Novas quantidades de ingredientes:", newQuantities);
     };
 
     return (

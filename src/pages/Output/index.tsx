@@ -10,7 +10,6 @@ import {
     auth,
     db,
     doc,
-
     setDoc,
     collection,
     getDocs,
@@ -21,6 +20,20 @@ import {
 } from "../../Firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { FaX } from "react-icons/fa6";
+
+interface Ingredient {
+    id: string;
+    name: string;
+    quantity: number;
+    categoryId: string;
+    subcategoryId: string;
+}
+
+interface Item {
+    id?: string;
+    name: string;
+    ingredients: Ingredient[];
+}
 
 interface Category {
     id: string;
@@ -36,16 +49,6 @@ interface Category {
     }[];
 }
 
-interface Item {
-    id?: string;
-    name: string;
-    ingredients: {
-        name: string;
-        quantity: string;
-        type: string;
-    }[];
-}
-
 export default function Output() {
     const [isOpenPlate, setIsOpenPlate] = useState(false);
     const [isOpenAdd, setIsOpenAdd] = useState(false);
@@ -54,18 +57,19 @@ export default function Output() {
         name: "",
         ingredients: [],
     });
-    const [ingredient, setIngredient] = useState({
+    const [ingredient, setIngredient] = useState<Ingredient>({
+        id: "",
         name: "",
-        quantity: "",
-        type: "",
+        quantity: 0,
+        categoryId: "",
+        subcategoryId: "",
     });
     const [userID, setUserID] = useState<string | null>(null);
     const [userDishes, setUserDishes] = useState<Item[]>([]);
-    const [categories, setCategories] = useState<{ id: string; [key: string]: any }[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [subcategories, setSubcategories] = useState<{ id: string; name: string }[]>([]);
     const [selectedSubcategory, setSelectedSubcategory] = useState("");
-
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -148,61 +152,53 @@ export default function Output() {
         setPlate({ ...plate, ingredients: newIngredients });
     }
 
-async function handleSubmit() {
-    if (plate.ingredients.length === 0 || !userID || !selectedCategory || !selectedSubcategory) {
-        alert("Por favor, preencha todas as informações!");
-        return;
-    }
-
-    try {
-        console.time("handleSubmit"); // Início da medição de tempo
-
-        // Buscar todos os ingredientes de todas as categorias e subcategorias
-        const allIngredients = await fetchAllIngredients();
-
-        // Verificar se os ingredientes do prato estão cadastrados
-        const missingIngredients = plate.ingredients.filter(ingredient => 
-            !allIngredients.some(ing => ing.name === ingredient.name)
-        );
-
-        if (missingIngredients.length > 0) {
-            alert(`Os seguintes ingredientes não estão cadastrados: ${missingIngredients.map(ing => ing.name).join(", ")}`);
-            console.timeEnd("handleSubmit"); // Fim da medição de tempo
+    async function handleSubmit() {
+        if (plate.ingredients.length === 0 || !userID || !selectedCategory || !selectedSubcategory) {
+            alert("Por favor, preencha todas as informações!");
             return;
         }
+        try {
+            console.time("handleSubmit"); // Início da medição de tempo
+            // Buscar todos os ingredientes de todas as categorias e subcategorias
+            const allIngredients = await fetchAllIngredients();
+            // Verificar se os ingredientes do prato estão cadastrados
+            const missingIngredients = plate.ingredients.filter(ingredient => 
+                !allIngredients.some(ing => ing.name === ingredient.name)
+            );
+            if (missingIngredients.length > 0) {
+                alert(`Os seguintes ingredientes não estão cadastrados: ${missingIngredients.map(ing => ing.name).join(", ")}`);
+                console.timeEnd("handleSubmit"); // Fim da medição de tempo
+                return;
+            }
+            // Use o nome do prato como ID do documento
+            const dishDocRef = doc(db, "dishes", plate.name); 
+            await setDoc(dishDocRef, {
+                name: plate.name,
+                userID: userID,
+                ingredients: plate.ingredients,
+            });
+            alert("Prato adicionado com sucesso!");
+            setIsOpenAdd(false);
+            setPlate({ name: "", ingredients: [] });
+            fetchUserDishes(userID);
+            console.timeEnd("handleSubmit"); // Fim da medição de tempo
+        } catch (error) {
+            console.error("Erro ao adicionar prato: ", error);
+            console.timeEnd("handleSubmit"); // Fim da medição de tempo
+        }
+    }
 
-        // Use o nome do prato como ID do documento
-        const dishDocRef = doc(db, "dishes", plate.name); 
-        await setDoc(dishDocRef, {
-            name: plate.name,
-            userID: userID,
-            ingredients: plate.ingredients,
+    function handleAddIngredient() {
+        if (!ingredient.name || !ingredient.quantity || !ingredient.categoryId || !ingredient.subcategoryId) {
+            alert("Por favor, preencha todas as informações do ingrediente!");
+            return;
+        }
+        setPlate({
+            ...plate,
+            ingredients: [...plate.ingredients, ingredient],
         });
-
-        alert("Prato adicionado com sucesso!");
-        setIsOpenAdd(false);
-        setPlate({ name: "", ingredients: [] });
-        fetchUserDishes(userID);
-
-        console.timeEnd("handleSubmit"); // Fim da medição de tempo
-    } catch (error) {
-        console.error("Erro ao adicionar prato: ", error);
-        console.timeEnd("handleSubmit"); // Fim da medição de tempo
+        setIngredient({ id: "", name: "", quantity: 0, categoryId: "", subcategoryId: "" });
     }
-}
-
-function handleAddIngredient() {
-    if (!ingredient.name || !ingredient.quantity || !ingredient.type) {
-        alert("Por favor, preencha todas as informações do ingrediente!");
-        return;
-    }
-    setPlate({
-        ...plate,
-        ingredients: [...plate.ingredients, ingredient],
-    });
-    setIngredient({ name: "", quantity: "", type: "" });
-}
-
 
     return (
         <section className="output-container">
@@ -217,7 +213,8 @@ function handleAddIngredient() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
-                        ingredients={[]}                    />
+                        ingredients={dish.ingredients} // Ingredientes do prato
+                    />
                 ))}
                 <CiSquarePlus
                     onClick={() => setIsOpenAdd(true)}
@@ -235,8 +232,7 @@ function handleAddIngredient() {
                             <ul>
                                 {currentItem.ingredients.map((item, index) => (
                                     <li key={index}>
-                                        {item.name} - {item.quantity}{" "}
-                                        {item.type}
+                                        {item.name} - {item.quantity} {item.categoryId}
                                     </li>
                                 ))}
                             </ul>
@@ -265,10 +261,10 @@ function handleAddIngredient() {
                             onChange={(e) => setSelectedCategory(e.target.value)}
                         >
                             <option value="">Selecione uma Categoria</option>
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
                             ))}
                         </select>
                         <select
@@ -277,9 +273,9 @@ function handleAddIngredient() {
                         >
                             <option value="">Selecione uma Subcategoria</option>
                             {subcategories.map((subcategory) => (
-                            <option key={subcategory.id} value={subcategory.id}>
-                                {subcategory.name}
-                            </option>
+                                <option key={subcategory.id} value={subcategory.id}>
+                                    {subcategory.name}
+                                </option>
                             ))}
                         </select>
 
@@ -293,69 +289,42 @@ function handleAddIngredient() {
                                 />
                                 <Input
                                     width="100px"
-                                    value={ingredient.quantity}
+                                    value={ingredient.quantity.toString()}
                                     onChange={(e) =>
                                         setIngredient({
                                             ...ingredient,
-                                            quantity: e.target.value,
+                                            quantity: parseFloat(e.target.value),
                                         })
                                     }
                                     placeholder="Quantidade"
                                 />
                                 <Input
-                                    data={["gramas", "kg", "litros", "ml"]}
                                     width="100px"
-                                    value={ingredient.type}
-                                    setValue={(name) =>
-                                        setIngredient({
-                                            ...ingredient,
-                                            type: name,
-                                        })
-                                    }
+                                    value={ingredient.categoryId}
                                     onChange={(e) =>
                                         setIngredient({
                                             ...ingredient,
-                                            type: e.target.value,
+                                            categoryId: e.target.value,
                                         })
                                     }
-                                    placeholder="Tipo"
+                                    placeholder="Categoria"
                                 />
-                            </div>
-                            <Button width="100%" onClick={handleAddIngredient}>
-                                Adicionar Ingrediente
-                            </Button>
-                        </div>
-                        {plate.ingredients.length > 0 && (
-                            <>
-                                <div className="ingredients-container">
-                                    <h3 style={{ margin: 0 }}>
-                                        Ingredientes salvos
-                                    </h3>
-                                    <div className="ingredients-content">
-                                        {plate.ingredients.map(
-                                            (ingredient, index) => (
-                                                <p
-                                                    key={index}
-                                                    onClick={() =>
-                                                        handleDeleteIngredient(
-                                                            ingredient.name
-                                                        )
-                                                    }
-                                                >
-                                                    {ingredient.name} |{" "}
-                                                    {ingredient.quantity}{" "}
-                                                    {ingredient.type}
-                                                    <FaX size={14} />
-                                                </p>
-                                            )
-                                        )}
-                                    </div>
-                                </div>
-                                <Button width="100%" onClick={handleSubmit}>
-                                    Salvar Prato
+                                <Input
+                                    width="100px"
+                                    value={ingredient.subcategoryId}
+                                    onChange={(e) =>
+                                        setIngredient({
+                                            ...ingredient,
+                                            subcategoryId: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Subcategoria"
+                                />
+                                <Button onClick={handleAddIngredient}>
+                                    Adicionar Ingrediente
                                 </Button>
-                            </>
-                        )}
+                            </div>
+                        </div>
                     </div>
                 </Modal>
             </div>
