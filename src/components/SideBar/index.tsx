@@ -15,7 +15,7 @@ export default function SideBar() {
   return (
     <aside className="side-bar">
       <Logo style={{ scale: "0.8", height: "240px" }} color="#DDE5F4" />
-      <div className="nav-items">
+      <div className="nav-items">a
         <NavItem
           path="/home/stock"
           onClick={() => navigate("stock")}
