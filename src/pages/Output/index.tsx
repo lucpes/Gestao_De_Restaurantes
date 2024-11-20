@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CardItem from "../Stock/CardItem"; // Certifique-se de que o caminho esteja correto
 import "./style.scss";
 import { IoRestaurantOutline } from "react-icons/io5";
@@ -21,9 +21,8 @@ import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { FaX } from "react-icons/fa6";
 
 interface Ingredient {
-    id?: string;
     name: string;
-    quantity: string;
+    quantity: number;
     type: string;
 }
 
@@ -52,6 +51,11 @@ interface Category {
     subcategories: Subcategory[];
 }
 
+interface DispatchedPlate {
+    name: string;
+    quantity: number;
+}
+
 export default function Output() {
     const [isOpenPlate, setIsOpenPlate] = useState(false);
     const [isOpenAdd, setIsOpenAdd] = useState(false);
@@ -69,17 +73,13 @@ export default function Output() {
     const [userID, setUserID] = useState<string | null>(null);
     const [userDishes, setUserDishes] = useState<Item[]>([]);
     const [ingredientsList, setIngredientList] = useState<string[]>([]);
-    const [dispatchedPlates, setDispatchedPlates] = useState<
-        {
-            name: string;
-            quantity: number;
-        }[]
-    >([]);
+    const [dispatchedPlates, setDispatchedPlates] = useState<DispatchedPlate[]>([]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUserID(user.uid);
+                console.log("User ID set:", user.uid);
             }
         });
         return () => unsubscribe();
@@ -124,8 +124,9 @@ export default function Output() {
                 );
 
                 setIngredientList(producstListFecthed);
+                console.log("Categories fetched:", formattedCategories);
             } catch (error) {
-                console.error("erro ao carregar dados: ", error);
+                console.error("Erro ao carregar dados: ", error);
             }
         }
         fetchCategories();
@@ -143,6 +144,7 @@ export default function Output() {
                 ...doc.data(),
             })) as Item[];
             setUserDishes(dishes);
+            console.log("User dishes fetched:", dishes);
         } catch (error) {
             console.error("Erro ao buscar pratos: ", error);
         }
@@ -151,6 +153,7 @@ export default function Output() {
     function handleCardItem(item: Item) {
         setCurrentItem(item);
         setIsOpenPlate(true);
+        console.log("Card item selected:", item);
     }
 
     function handleDeleteIngredient(name: string) {
@@ -158,10 +161,11 @@ export default function Output() {
             (ingredient) => ingredient.name !== name
         );
         setPlate({ ...plate, ingredients: newIngredients });
+        console.log("Ingredient deleted:", name);
     }
 
     async function handleSubmit() {
-        console.log(plate.ingredients.length, userID);
+        console.log("Submitting plate:", plate);
         if (plate.ingredients.length === 0 || !userID) {
             alert("Por favor, preencha todas as informações!");
             return;
@@ -190,20 +194,44 @@ export default function Output() {
         }
         setPlate({
             ...plate,
-            ingredients: [...plate.ingredients, ingredient],
+            ingredients: [
+                ...plate.ingredients,
+                {
+                    name: ingredient.name,
+                    quantity: Number(ingredient.quantity),
+                    type: ingredient.type,
+                },
+            ],
         });
         setIngredient({ name: "", quantity: "", type: "" });
+        console.log("Ingredient added:", ingredient);
     }
 
+    const memoizedReturnQuantity = useCallback((name: string, quantity: number) => {
+        console.log(`Return quantity for ${name}: ${quantity}`);
+        setDispatchedPlates((prevPlates) => {
+            const itemExists = prevPlates.find((item) => item.name === name);
+
+            if (itemExists) {
+                return prevPlates.map((item) =>
+                    item.name === name ? { ...item, quantity } : item
+                );
+            } else {
+                return [...prevPlates, { name, quantity }];
+            }
+        });
+    }, []);
+
     async function handleDispatchPlates() {
-        const ingredientsOut: { ingredientName: string; quantity: string }[] =
-            [];
+        console.log("Dispatched Plates before processing:", dispatchedPlates);
+
+        const ingredientsOut: { ingredientName: string; quantity: string }[] = [];
 
         // Processa os pratos para obter os ingredientes e quantidades
         dispatchedPlates.forEach((plate) => {
-            userDishes.forEach((dishe) => {
-                if (plate.name === dishe.name) {
-                    dishe.ingredients.forEach((ingredient) => {
+            userDishes.forEach((dish) => {
+                if (plate.name === dish.name) {
+                    dish.ingredients.forEach((ingredient) => {
                         ingredientsOut.push({
                             ingredientName: ingredient.name,
                             quantity: (
@@ -247,8 +275,23 @@ export default function Output() {
             }
         }
 
-        // Recarrega a página após todas as atualizações
-        window.location.reload();
+        // Calcula a quantidade total de pratos despachados
+        const total = dispatchedPlates.reduce(
+            (acc, plate) => acc + plate.quantity,
+            0
+        );
+
+        // Exibe a quantidade de vezes que cada prato foi retirado
+        dispatchedPlates.forEach((plate) => {
+            console.log(`O prato ${plate.name} foi retirado ${plate.quantity} vezes.`);
+        });
+
+        // Atualiza o estado com a quantidade total de pratos despachados
+        setDispatchedPlates(dispatchedPlates);
+        console.log("Dispatched Plates after processing:", dispatchedPlates);
+
+        // Armazena os dados no localStorage
+        localStorage.setItem("dispatchedPlates", JSON.stringify(dispatchedPlates));
     }
 
     return (
@@ -264,27 +307,7 @@ export default function Output() {
                         productName={dish.name} // Nome do prato
                         productQuantity={dish.ingredients.length} // Quantidade de ingredientes
                         productUnit="ingredientes" // Unidade padrão
-                        returnQuantity={(name, quantity) => {
-                            setDispatchedPlates((prevPlates) => {
-                                const itemExists = prevPlates.find(
-                                    (item) => item.name === name
-                                );
-
-                                if (itemExists) {
-                                    return prevPlates
-                                        .map((item) =>
-                                            item.name === name
-                                                ? { ...item, quantity }
-                                                : item
-                                        )
-                                        .filter((item) => item.quantity > 0);
-                                } else if (quantity > 0) {
-                                    return [...prevPlates, { name, quantity }];
-                                }
-
-                                return prevPlates;
-                            });
-                        }}
+                        returnQuantity={memoizedReturnQuantity}
                     />
                 ))}
                 <CiSquarePlus
@@ -305,8 +328,7 @@ export default function Output() {
                             <ul>
                                 {currentItem.ingredients.map((item, index) => (
                                     <li key={index}>
-                                        {item.name} - {item.quantity}{" "}
-                                        {item.type}
+                                        {item.name} - {item.quantity} {item.type}
                                     </li>
                                 ))}
                             </ul>
@@ -417,6 +439,9 @@ export default function Output() {
                         )}
                     </div>
                 </Modal>
+            </div>
+            <div className="total-dispatched">
+                <h2>Total de pratos despachados: {dispatchedPlates.reduce((acc, plate) => acc + plate.quantity, 0)}</h2>
             </div>
         </section>
     );

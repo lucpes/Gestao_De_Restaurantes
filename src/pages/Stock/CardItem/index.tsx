@@ -21,8 +21,11 @@ export default function CardItem({
     const [count, setCount] = useState(0);
 
     useEffect(() => {
-        returnQuantity && returnQuantity(productName, count);
-    }, [count]);
+        if (returnQuantity) {
+            console.log(`Updating quantity for ${productName}: ${count}`);
+            returnQuantity(productName, count);
+        }
+    }, [count, productName, returnQuantity]);
 
     return (
         <div {...props} className="carditem-output-container">
