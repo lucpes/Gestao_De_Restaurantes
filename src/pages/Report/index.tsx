@@ -47,7 +47,9 @@ export default function Report() {
         // Recupera os dados do localStorage
         const storedDispatchedPlates = localStorage.getItem("dispatchedPlates");
         if (storedDispatchedPlates) {
-            setDispatchedPlates(JSON.parse(storedDispatchedPlates));
+            const parsedDispatchedPlates = JSON.parse(storedDispatchedPlates);
+            setDispatchedPlates(parsedDispatchedPlates);
+            console.log("Dispatched Plates from localStorage:", parsedDispatchedPlates);
         }
     }, []);
 

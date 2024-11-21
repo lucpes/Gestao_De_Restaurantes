@@ -19,6 +19,7 @@ import {
 } from "../../Firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { FaX } from "react-icons/fa6";
+import * as XLSX from "xlsx";
 
 interface Ingredient {
     name: string;
@@ -214,13 +215,18 @@ export default function Output() {
 
             if (itemExists) {
                 return prevPlates.map((item) =>
-                    item.name === name ? { ...item, quantity } : item
+                    item.name === name ? { ...item, quantity: quantity } : item
                 );
             } else {
                 return [...prevPlates, { name, quantity }];
             }
         });
     }, []);
+
+    useEffect(() => {
+        // Armazena os dados no localStorage sempre que dispatchedPlates for atualizado
+        localStorage.setItem("dispatchedPlates", JSON.stringify(dispatchedPlates));
+    }, [dispatchedPlates]);
 
     async function handleDispatchPlates() {
         console.log("Dispatched Plates before processing:", dispatchedPlates);
@@ -289,9 +295,40 @@ export default function Output() {
         // Atualiza o estado com a quantidade total de pratos despachados
         setDispatchedPlates(dispatchedPlates);
         console.log("Dispatched Plates after processing:", dispatchedPlates);
+    }
 
-        // Armazena os dados no localStorage
-        localStorage.setItem("dispatchedPlates", JSON.stringify(dispatchedPlates));
+    async function exportToExcel() {
+        await handleDispatchPlates(); // Chama a função handleDispatchPlates para garantir que os dados estejam atualizados
+
+        const date = new Date();
+        const dateString = date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+        const allIngredients = new Set<string>();
+        userDishes.forEach((dish) => {
+            dish.ingredients.forEach((ingredient) => {
+                allIngredients.add(ingredient.name);
+            });
+        });
+
+        const worksheetData = dispatchedPlates.map((plate) => {
+            const dish = userDishes.find((dish) => dish.name === plate.name);
+            const ingredients = Array.from(allIngredients).reduce((acc, ingredientName) => {
+                const ingredient = dish?.ingredients.find((ing) => ing.name === ingredientName);
+                acc[ingredientName] = ingredient ? ingredient.quantity * plate.quantity : 0;
+                return acc;
+            }, {} as { [key: string]: number });
+            return {
+                Prato: plate.name,
+                Quantidade: plate.quantity,
+                ...ingredients,
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Pratos Despachados");
+
+        XLSX.writeFile(workbook, `pratos_despachados_${dateString}.xlsx`);
     }
 
     return (
@@ -315,9 +352,14 @@ export default function Output() {
                     className="icon"
                     size={"60px"}
                 />
-                <button onClick={handleDispatchPlates} className="button-plate">
-                    Atribuir pratos
-                </button>
+                <div className="buttons-container">
+                    <button onClick={handleDispatchPlates} className="button-plate">
+                        Atribuir pratos
+                    </button>
+                    <button onClick={exportToExcel} className="button-plate">
+                        Exportar para Excel
+                    </button>
+                </div>
                 <Modal
                     isOpen={isOpenPlate}
                     onClose={() => setIsOpenPlate(false)}
@@ -439,9 +481,6 @@ export default function Output() {
                         )}
                     </div>
                 </Modal>
-            </div>
-            <div className="total-dispatched">
-                <h2>Total de pratos despachados: {dispatchedPlates.reduce((acc, plate) => acc + plate.quantity, 0)}</h2>
             </div>
         </section>
     );
